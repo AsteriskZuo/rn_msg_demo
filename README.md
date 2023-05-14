@@ -11,6 +11,7 @@
 
 ```sh
 npx create-react-native-app -t with-typescript
+expo prebuild
 ```
 
 TypeScript is a superset of JavaScript which gives you static types and powerful tooling in Visual Studio Code including autocompletion and useful inline warnings for type errors.
