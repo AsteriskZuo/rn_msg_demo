@@ -24,6 +24,9 @@ PODS:
   - EXImageLoader (3.2.0):
     - ExpoModulesCore
     - React-Core
+  - EXJSONUtils (0.3.0)
+  - EXManifests (0.3.1):
+    - EXJSONUtils
   - EXMediaLibrary (14.2.0):
     - ExpoModulesCore
     - React-Core
@@ -31,6 +34,78 @@ PODS:
     - ExpoModulesCore
   - Expo (45.0.8):
     - ExpoModulesCore
+  - expo-dev-client (1.0.1):
+    - EXManifests
+    - expo-dev-launcher
+    - expo-dev-menu
+    - expo-dev-menu-interface
+    - EXUpdatesInterface
+  - expo-dev-launcher (1.0.1):
+    - EXManifests
+    - expo-dev-launcher/Main (= 1.0.1)
+    - expo-dev-menu
+    - expo-dev-menu-interface
+    - ExpoModulesCore
+    - EXUpdatesInterface
+    - React-Core
+  - expo-dev-launcher/Main (1.0.1):
+    - EXManifests
+    - expo-dev-launcher/Unsafe
+    - expo-dev-menu
+    - expo-dev-menu-interface
+    - ExpoModulesCore
+    - EXUpdatesInterface
+    - React-Core
+  - expo-dev-launcher/Unsafe (1.0.1):
+    - EXManifests
+    - expo-dev-menu
+    - expo-dev-menu-interface
+    - ExpoModulesCore
+    - EXUpdatesInterface
+    - React-Core
+  - expo-dev-menu (1.0.1):
+    - expo-dev-menu/Main (= 1.0.1)
+  - expo-dev-menu-interface (0.7.0)
+  - expo-dev-menu/GestureHandler (1.0.1)
+  - expo-dev-menu/Main (1.0.1):
+    - EXManifests
+    - expo-dev-menu-interface
+    - expo-dev-menu/Vendored
+    - ExpoModulesCore
+    - React-Core
+  - expo-dev-menu/Reanimated (1.0.1):
+    - DoubleConversion
+    - FBLazyVector
+    - FBReactNativeSpec
+    - glog
+    - RCT-Folly
+    - RCTRequired
+    - RCTTypeSafety
+    - React-callinvoker
+    - React-Core
+    - React-Core/DevSupport
+    - React-Core/RCTWebSocket
+    - React-CoreModules
+    - React-cxxreact
+    - React-jsi
+    - React-jsiexecutor
+    - React-jsinspector
+    - React-RCTActionSheet
+    - React-RCTAnimation
+    - React-RCTBlob
+    - React-RCTImage
+    - React-RCTLinking
+    - React-RCTNetwork
+    - React-RCTSettings
+    - React-RCTText
+    - React-RCTVibration
+    - ReactCommon/turbomodule/core
+    - Yoga
+  - expo-dev-menu/SafeAreaView (1.0.1)
+  - expo-dev-menu/Vendored (1.0.1):
+    - expo-dev-menu/GestureHandler
+    - expo-dev-menu/Reanimated
+    - expo-dev-menu/SafeAreaView
   - ExpoCrypto (10.2.0):
     - ExpoModulesCore
   - ExpoImagePicker (13.1.1):
@@ -45,6 +120,7 @@ PODS:
     - React-Core
   - EXSQLite (10.3.0):
     - ExpoModulesCore
+  - EXUpdatesInterface (0.6.0)
   - EXVideoThumbnails (6.4.0):
     - ExpoModulesCore
   - FBLazyVector (0.68.5)
@@ -268,6 +344,12 @@ PODS:
   - react-native-chat-sdk (1.1.2-beta.3):
     - HyphenateChat (= 4.0.0)
     - React-Core
+  - react-native-safe-area-context (4.5.2):
+    - RCT-Folly
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - ReactCommon/turbomodule/core
   - React-perflogger (0.68.5)
   - React-RCTActionSheet (0.68.5):
     - React-Core/RCTActionSheetHeaders (= 0.68.5)
@@ -382,15 +464,22 @@ DEPENDENCIES:
   - EXFileSystem (from `../node_modules/expo-file-system/ios`)
   - EXFont (from `../node_modules/expo-font/ios`)
   - EXImageLoader (from `../node_modules/expo-image-loader/ios`)
+  - EXJSONUtils (from `../node_modules/expo-json-utils/ios`)
+  - EXManifests (from `../node_modules/expo-manifests/ios`)
   - EXMediaLibrary (from `../node_modules/expo-media-library/ios`)
   - EXNotifications (from `../node_modules/expo-notifications/ios`)
   - Expo (from `../node_modules/expo/ios`)
+  - expo-dev-client (from `../node_modules/expo-dev-client/ios`)
+  - expo-dev-launcher (from `../node_modules/expo-dev-launcher`)
+  - expo-dev-menu (from `../node_modules/expo-dev-menu`)
+  - expo-dev-menu-interface (from `../node_modules/expo-dev-menu-interface/ios`)
   - ExpoCrypto (from `../node_modules/expo-crypto/ios`)
   - ExpoImagePicker (from `../node_modules/expo-image-picker/ios`)
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core/ios`)
   - EXSplashScreen (from `../node_modules/expo-splash-screen/ios`)
   - EXSQLite (from `../node_modules/expo-sqlite/ios`)
+  - EXUpdatesInterface (from `../node_modules/expo-updates-interface/ios`)
   - EXVideoThumbnails (from `../node_modules/expo-video-thumbnails/ios`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../node_modules/react-native/React/FBReactNativeSpec`)
@@ -411,6 +500,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - react-native-chat-sdk (from `../node_modules/react-native-chat-sdk`)
+  - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../node_modules/react-native/Libraries/NativeAnimation`)
@@ -457,12 +547,24 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-font/ios"
   EXImageLoader:
     :path: "../node_modules/expo-image-loader/ios"
+  EXJSONUtils:
+    :path: "../node_modules/expo-json-utils/ios"
+  EXManifests:
+    :path: "../node_modules/expo-manifests/ios"
   EXMediaLibrary:
     :path: "../node_modules/expo-media-library/ios"
   EXNotifications:
     :path: "../node_modules/expo-notifications/ios"
   Expo:
     :path: "../node_modules/expo/ios"
+  expo-dev-client:
+    :path: "../node_modules/expo-dev-client/ios"
+  expo-dev-launcher:
+    :path: "../node_modules/expo-dev-launcher"
+  expo-dev-menu:
+    :path: "../node_modules/expo-dev-menu"
+  expo-dev-menu-interface:
+    :path: "../node_modules/expo-dev-menu-interface/ios"
   ExpoCrypto:
     :path: "../node_modules/expo-crypto/ios"
   ExpoImagePicker:
@@ -475,6 +577,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-splash-screen/ios"
   EXSQLite:
     :path: "../node_modules/expo-sqlite/ios"
+  EXUpdatesInterface:
+    :path: "../node_modules/expo-updates-interface/ios"
   EXVideoThumbnails:
     :path: "../node_modules/expo-video-thumbnails/ios"
   FBLazyVector:
@@ -511,6 +615,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   react-native-chat-sdk:
     :path: "../node_modules/react-native-chat-sdk"
+  react-native-safe-area-context:
+    :path: "../node_modules/react-native-safe-area-context"
   React-perflogger:
     :path: "../node_modules/react-native/ReactCommon/reactperflogger"
   React-RCTActionSheet:
@@ -555,15 +661,22 @@ SPEC CHECKSUMS:
   EXFileSystem: 927e0a8885aa9c49e50fc38eaba2c2389f2f1019
   EXFont: 04235cc22e6fef86028feb67db452978dc6f240f
   EXImageLoader: b88e053d760f85a82405b1db2de4abf11978fc9f
+  EXJSONUtils: 2a74b8f40f1523cc3f92af99c91aa78201737a77
+  EXManifests: b38dc61303f5eede990b4c8ecbfac32f82160e65
   EXMediaLibrary: e8c8a365701629b7b21dd29769b86e8320610f18
   EXNotifications: 297bb555bbd26fd7aa8ff3bf7e724d4d65f7e895
   Expo: 1133eaf0e12dc265ac82a256f3815401b7570f96
+  expo-dev-client: 56e713e8ab330e3d2522e4d1c568dc1f5e0116b1
+  expo-dev-launcher: 3c6059a3f2cc3093a2a22d23e57cb54bcba5b33f
+  expo-dev-menu: ba291761e0ffbdd7011fd33576687f939cadf044
+  expo-dev-menu-interface: db5495dd7206992a94ce35c51391f139ae26f2b7
   ExpoCrypto: d0d0f3e20875dc450b4ec88f0fb608da5c2c6c17
   ExpoImagePicker: d9d6b4f29db437fc7796f13cee5f133f5b4b5f7c
   ExpoKeepAwake: c0c494b442ecd8122974c13b93ccfb57bd408e88
   ExpoModulesCore: e4278a668e8c13c0269ed8b8a4200989deea2973
   EXSplashScreen: 799bece80089219b2c989c1082d70f3b00995cda
   EXSQLite: 82a4ca937f19d3cbbb6dba9e11d8e963175527c9
+  EXUpdatesInterface: 0b101ace1dbfa0f64260a5df31c71d03c66cca54
   EXVideoThumbnails: 486533e1a66c9859f9b9e3b2e1f9f0b275515b48
   FBLazyVector: 2b47ff52037bd9ae07cc9b051c9975797814b736
   FBReactNativeSpec: 0e0d384ef17a33b385f13f0c7f97702c7cd17858
@@ -584,6 +697,7 @@ SPEC CHECKSUMS:
   React-jsinspector: eb202e43b3879aba9a14f3f65788aec85d4e1ea9
   React-logger: 98f663b292a60967ebbc6d803ae96c1381183b6d
   react-native-chat-sdk: 23b97b9987f60324f848c18b975f137312e7d976
+  react-native-safe-area-context: 1d596539b05a78f2b346e954e7c577f6f9be7544
   React-perflogger: 0458a87ea9a7342079e7a31b0d32b3734fb8415f
   React-RCTActionSheet: 22538001ea2926dea001111dd2846c13a0730bc9
   React-RCTAnimation: 732ce66878d4aa151d56a0d142b1105aa12fd313
@@ -600,6 +714,6 @@ SPEC CHECKSUMS:
   RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
   Yoga: c4d61225a466f250c35c1ee78d2d0b3d41fe661c
 
-PODFILE CHECKSUM: 33384d190429eee3bcc20432aa4a72934204ed53
+PODFILE CHECKSUM: f155a58a24da17ad972b0408edd1b1662eb706a0
 
 COCOAPODS: 1.11.3
