@@ -12,7 +12,6 @@ import {
 } from "./config";
 import { TextInput } from "react-native";
 import { ChatClient } from "react-native-chat-sdk";
-import { requestAV } from "./permission";
 import { AppServerClient } from "./AppServerClient";
 import { LogMemo } from "./Log";
 
@@ -22,12 +21,13 @@ export function MainScreen({
   dlog.log("MainScreen:", defaultId, defaultPs);
   const placeholder1 = "Please User Id";
   const placeholder2 = "Please User Password or Token";
-  const placeholder3 = "Please Call Target Ids";
+  const placeholder3 = "Please Chat Target ID";
+  const placeholder4 = "Please Chat Target Type: 0 or 1";
   const [id, setId] = React.useState(defaultId);
   const [token, setToken] = React.useState(defaultPs);
-  const [ids, setIds] = React.useState(defaultTargetId);
-  const [v, setV] = React.useState(JSON.stringify(defaultTargetId));
   const [logged, setLogged] = React.useState(false);
+  const [chatId, setChatId] = React.useState(defaultTargetId);
+  const [chatType, setChatType] = React.useState("0");
   const type = accountType;
   const logRef = React.useRef({
     logHandler: (message?: any, ...optionalParams: any[]) => {
@@ -39,17 +39,8 @@ export function MainScreen({
     logRef.current?.logHandler?.(message, ...optionalParams);
   };
 
-  const setValue = (t: string) => {
-    try {
-      setIds(JSON.parse(t));
-    } catch (error) {
-      dlog.warn("value:", error);
-    } finally {
-      setV(t);
-    }
-  };
   const login = () => {
-    dlog.log("MainScreen:login:", id, token, type, id.split('0'));
+    dlog.log("MainScreen:login:", id, token, type, id.split("0"));
     if (type !== "easemob") {
       AppServerClient.getAccountToken({
         userId: id,
@@ -78,7 +69,10 @@ export function MainScreen({
           setLogged(true);
         })
         .catch((e) => {
-          dlog.log("login:error:", e);
+          console.log("login:error:", e);
+          if (e.code === 200) {
+            setLogged(true);
+          }
         });
     }
   };
@@ -102,34 +96,24 @@ export function MainScreen({
         dlog.log("logout:error:", e);
       });
   };
-  const gotoCall = React.useCallback(
-    async (params: {
-      av: "audio" | "video";
-      sm: "single" | "multi";
-      isInviter: boolean;
-      inviterId?: string;
-    }) => {
-      if (logged === false) {
-        dlog.log("gotoCall:", "Please log in first.");
-      }
-      if ((await requestAV()) === false) {
-        dlog.log("gotoCall:", "Failed to request permission.");
+  const gotoMessage = React.useCallback(
+    async (params: { chatId: string; chatType: number }) => {
+      const { chatId, chatType } = params;
+      if (logged !== true) {
+        dlog.log("gotoMessage:", "Please log in first.");
         return;
       }
-      if (ids.length > 0) {
-        const { av, sm, isInviter, inviterId } = params;
-        if (isInviter === false) {
-          navigation.push("Call", { ids, av, sm, isInviter, inviterId });
-        } else {
-          navigation.push("Call", { ids, av, sm, isInviter });
-        }
+      if (chatId === undefined || chatId.trim().length === 0) {
+        dlog.log("gotoMessage:", "Please input chatId first.");
+        return;
       }
+      navigation.push("Message", { chatId, chatType });
     },
-    [ids, logged, navigation]
+    [logged, navigation]
   );
   const addListener = React.useCallback(() => {
     return () => {};
-  }, [gotoCall]);
+  }, []);
   React.useEffect(() => {
     const ret = addListener();
     return () => ret();
@@ -170,34 +154,26 @@ export function MainScreen({
           <TextInput
             style={styles.input}
             placeholder={placeholder3}
-            value={v}
-            onChangeText={setValue}
+            value={chatId}
+            onChangeText={setChatId}
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder={placeholder4}
+            value={chatType}
+            onChangeText={setChatType}
           />
         </View>
         <View style={styles.buttonContainer}>
           <Pressable
             style={styles.button}
             onPress={() => {
-              gotoCall({ av: "audio", sm: "single", isInviter: true });
+              gotoMessage({ chatId: chatId, chatType: parseInt(chatType) });
             }}
           >
-            <Text style={styles.buttonText}>Single Audio Call</Text>
-          </Pressable>
-          <Pressable
-            style={styles.button}
-            onPress={() => {
-              gotoCall({ av: "video", sm: "single", isInviter: true });
-            }}
-          >
-            <Text style={styles.buttonText}>Single Video Call</Text>
-          </Pressable>
-          <Pressable
-            style={styles.button}
-            onPress={() => {
-              gotoCall({ av: "video", sm: "multi", isInviter: true });
-            }}
-          >
-            <Text style={styles.buttonText}>Multi Call</Text>
+            <Text style={styles.buttonText}>Send Message</Text>
           </Pressable>
         </View>
         <LogMemo propsRef={logRef} />

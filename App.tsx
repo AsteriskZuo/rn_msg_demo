@@ -60,7 +60,7 @@ const App = () => {
         <Root.Screen
           options={() => {
             return {
-              headerShown: false,
+              headerShown: true,
               presentation: "fullScreenModal",
             };
           }}

@@ -11,7 +11,7 @@ export let defaultPs = "qwerty";
 export let accountType: "agora" | "easemob" | undefined;
 export const autoLogin = false;
 export const debugModel = true;
-export let defaultTargetId = ["asterisk025"];
+export let defaultTargetId = "du005";
 
 try {
   appKey = require("../env").appKey;
@@ -19,7 +19,7 @@ try {
   defaultPs = require("../env").ps;
   agoraAppId = require("../env").agoraAppId;
   accountType = require("../env").accountType;
-  defaultTargetId = [require("../env").targetId as string];
+  defaultTargetId = require("../env").targetId as string;
 } catch (error) {
   console.error(error);
 }
