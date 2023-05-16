@@ -7,7 +7,7 @@ export class VoiceHandler {
   private _recordingStatus?: Audio.Audio.RecordingStatus;
   constructor(params: {
     type: "playback" | "record";
-    file: number | Audio.AVPlaybackSourceObject | Asset.Asset;
+    file?: number | Audio.AVPlaybackSourceObject | Asset.Asset;
   }) {
     if (params.type === "record") {
       // Audio.Audio.Recording.createAsync(
@@ -19,12 +19,14 @@ export class VoiceHandler {
       //   })
       //   .catch();
     } else if (params.type === "playback") {
-      Audio.Audio.Sound.createAsync(params.file)
-        .then(({ sound, status }) => {
-          this._sound = sound;
-          this._soundStatus = status;
-        })
-        .catch();
+      if (params.file) {
+        Audio.Audio.Sound.createAsync(params.file)
+          .then(({ sound, status }) => {
+            this._sound = sound;
+            this._soundStatus = status;
+          })
+          .catch();
+      }
     }
   }
   async startPlayAudio() {
@@ -54,7 +56,6 @@ export class VoiceHandler {
       this._recordingStatus = status;
     } catch (err) {
       console.error("Failed to start recording", err);
-      return undefined;
     }
   }
 
@@ -66,8 +67,15 @@ export class VoiceHandler {
         allowsRecordingIOS: false,
       });
       const uri = this._recording?.getURI();
-      console.log("Recording stopped and stored at", uri);
-      return uri;
+      const ms = this._recordingStatus?.durationMillis; // todo: bug?
+      console.log(
+        "Recording stopped and stored at",
+        uri,
+        this._recordingStatus
+      );
+      this._recording = undefined;
+      this._recordingStatus = undefined;
+      return { uri, duration: ms };
     }
     return undefined;
   }

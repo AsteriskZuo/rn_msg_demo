@@ -10,12 +10,8 @@ export class VideoHandler {
     return ret;
   }
   async getThumbnail(params: { fileName: string }) {
-    try {
-      const ret: VideoThumbnails.VideoThumbnailsResult =
-        await VideoThumbnails.getThumbnailAsync(params.fileName);
-      return ret;
-    } catch (error) {
-      return { error };
-    }
+    const ret: VideoThumbnails.VideoThumbnailsResult =
+      await VideoThumbnails.getThumbnailAsync(params.fileName);
+    return ret;
   }
 }

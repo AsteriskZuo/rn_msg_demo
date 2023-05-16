@@ -107,7 +107,7 @@ export function MainScreen({
         dlog.log("gotoMessage:", "Please input chatId first.");
         return;
       }
-      navigation.push("Message", { chatId, chatType });
+      navigation.push("Message", { chatId, chatType, currentId: id });
     },
     [logged, navigation]
   );
