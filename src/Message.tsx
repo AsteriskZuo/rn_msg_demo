@@ -1,7 +1,15 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable react/no-unstable-nested-components */
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import * as React from "react";
 import { Picker } from "@react-native-picker/picker";
 import {
@@ -401,6 +409,18 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
     };
   }, [currentId]);
 
+  const RenderContextMenu = ({ data }: { data: MessageItemType }) => {
+    return (
+      <Modal style={{ display: "none" }}>
+        <View style={{ backgroundColor: "red" }}>
+          <TouchableOpacity>
+            <Text>download attachment</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+    );
+  };
+
   const RenderVoiceButton = React.memo(
     ({ onStart, onEnd }: { onStart?: () => void; onEnd?: () => void }) => {
       const startRecordContent = "Start Record" as
@@ -608,6 +628,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
         </View>
         <RenderBody type={selectedType as ChatMessageType} />
       </View>
+      {/* <RenderContextMenu /> */}
     </View>
   );
 }

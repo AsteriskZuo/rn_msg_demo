@@ -1,12 +1,6 @@
 import * as React from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import {
-  DeviceEventEmitter,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   RootParamsList,
@@ -19,7 +13,6 @@ import {
 import { TextInput } from "react-native";
 import { ChatClient } from "react-native-chat-sdk";
 import { AppServerClient } from "./AppServerClient";
-import { LogMemo } from "./Log";
 
 export function MainScreen({
   navigation,
@@ -35,17 +28,6 @@ export function MainScreen({
   const [chatId, setChatId] = React.useState(defaultTargetId);
   const [chatType, setChatType] = React.useState("0");
   const type = accountType;
-  const logRef = React.useRef({
-    logHandler: (message?: any, ...optionalParams: any[]) => {
-      dlog.log(message, ...optionalParams);
-    },
-  });
-  const logHeightRef = React.useRef<number | string>(1);
-  const [logHeight, setLogHeight] = React.useState(logHeightRef.current);
-
-  dlog.handler = (message?: any, ...optionalParams: any[]) => {
-    logRef.current?.logHandler?.(message, ...optionalParams);
-  };
 
   const login = () => {
     dlog.log("MainScreen:login:", id, token, type, id.split("0"));
@@ -122,16 +104,7 @@ export function MainScreen({
   );
 
   const addListener = React.useCallback(() => {
-    const sub = DeviceEventEmitter.addListener("open_log", (data) => {
-      const d = data as { name: string };
-      if (d.name === "Main") {
-        logHeightRef.current = logHeightRef.current === 1 ? "100%" : 1;
-        setLogHeight(logHeightRef.current);
-      }
-    });
-    return () => {
-      sub.remove();
-    };
+    return () => {};
   }, []);
   React.useEffect(() => {
     const ret = addListener();
@@ -196,11 +169,6 @@ export function MainScreen({
           </Pressable>
         </View>
       </View>
-      <LogMemo
-        containerStyle={[styles.log, { height: logHeight }]}
-        propsRef={logRef}
-        maxLineNumber={100}
-      />
     </SafeAreaView>
   );
 }

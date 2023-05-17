@@ -21,7 +21,7 @@ try {
   accountType = require("../env").accountType;
   defaultTargetId = require("../env").targetId as string;
 } catch (error) {
-  dlog.error(error);
+  console.error(error);
 }
 
 export const dlog = new ChatLog();

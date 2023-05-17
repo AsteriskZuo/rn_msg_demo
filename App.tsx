@@ -16,12 +16,8 @@ import { MainScreen } from "./src/Main";
 import { MessageScreen } from "./src/Message";
 import { AppServerClient } from "./src/AppServerClient";
 import { ChatClient, ChatOptions } from "react-native-chat-sdk";
-import {
-  ActivityIndicator,
-  DeviceEventEmitter,
-  Text,
-  TouchableOpacity,
-} from "react-native";
+import { ActivityIndicator, Text, TouchableOpacity } from "react-native";
+import { LogMemo } from "./src/Log";
 
 const Root = createNativeStackNavigator();
 
@@ -29,6 +25,17 @@ const App = () => {
   dlog.log("App:");
   const [ready, setReady] = React.useState(false);
   const enableLog = true;
+  const logHeightRef = React.useRef<number | string>(1);
+  const [logHeight, setLogHeight] = React.useState(logHeightRef.current);
+
+  const logRef = React.useRef({
+    logHandler: (message?: any, ...optionalParams: any[]) => {
+      console.log(message, ...optionalParams);
+    },
+  });
+  dlog.handler = (message?: any, ...optionalParams: any[]) => {
+    logRef.current?.logHandler?.(message, ...optionalParams);
+  };
 
   if (accountType !== "easemob") {
     AppServerClient.rtcTokenUrl = "https://a41.easemob.com/token/rtc/channel";
@@ -59,105 +66,57 @@ const App = () => {
     return <ActivityIndicator />;
   }
 
+  const HeaderRight = () => {
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          logHeightRef.current = logHeightRef.current === 1 ? "90%" : 1;
+          setLogHeight(logHeightRef.current);
+        }}
+      >
+        <Text style={{ fontWeight: "600", color: "blue" }}>DevLog</Text>
+      </TouchableOpacity>
+    );
+  };
+
   return (
-    <NavigationContainer>
-      <Root.Navigator initialRouteName="Main">
-        <Root.Screen
-          options={() => {
-            return {
-              headerRight: () => {
-                return (
-                  <TouchableOpacity
-                    onPress={() => {
-                      DeviceEventEmitter.emit("open_log", {
-                        name: "Main",
-                      });
-                    }}
-                  >
-                    <Text style={{ fontWeight: "600", color: "blue" }}>
-                      DevLog
-                    </Text>
-                  </TouchableOpacity>
-                );
-              },
-            };
-          }}
-          name="Main"
-          component={MainScreen}
-        />
-        <Root.Screen
-          options={() => {
-            return {
-              headerShown: true,
-              presentation: "fullScreenModal",
-              headerRight: () => {
-                return (
-                  <TouchableOpacity
-                    onPress={() => {
-                      DeviceEventEmitter.emit("open_log", {
-                        name: "Message",
-                      });
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontWeight: "600",
-                        color: "blue",
-                      }}
-                    >
-                      DevLog
-                    </Text>
-                  </TouchableOpacity>
-                );
-              },
-            };
-          }}
-          name="Message"
-          component={MessageScreen}
-        />
-      </Root.Navigator>
-    </NavigationContainer>
+    <>
+      <NavigationContainer>
+        <Root.Navigator initialRouteName="Main">
+          <Root.Screen
+            options={() => {
+              return {
+                headerRight: HeaderRight,
+              };
+            }}
+            name="Main"
+            component={MainScreen}
+          />
+          <Root.Screen
+            options={() => {
+              return {
+                headerShown: true,
+                presentation: "fullScreenModal",
+                headerRight: HeaderRight,
+              };
+            }}
+            name="Message"
+            component={MessageScreen}
+          />
+        </Root.Navigator>
+      </NavigationContainer>
+      <LogMemo
+        containerStyle={{
+          position: "absolute",
+          width: "100%",
+          height: logHeight,
+          bottom: 0,
+        }}
+        propsRef={logRef}
+        maxLineNumber={10}
+      />
+    </>
   );
 };
 
 export default App;
-
-// import * as React from "react";
-// import { Button, StyleSheet, Text, View } from "react-native";
-// import { ChatClient, ChatOptions } from "react-native-chat-sdk";
-
-// export default function App() {
-//   return (
-//     <View style={styles.container}>
-//       <Text>Open up App.tsx to start working on your app!</Text>
-//       <Button
-//         title="test sdk"
-//         onPress={() => {
-//           ChatClient.getInstance()
-//             .init(
-//               new ChatOptions({
-//                 appKey: "sdf",
-//                 autoLogin: false,
-//                 debugModel: true,
-//               })
-//             )
-//             .then(() => {
-//               console.log('test:init:success:');
-//             })
-//             .catch((e) => {
-//               console.warn(e);
-//             });
-//         }}
-//       ></Button>
-//     </View>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: "#fff",
-//     alignItems: "center",
-//     justifyContent: "center",
-//   },
-// });
