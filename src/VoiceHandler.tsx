@@ -9,6 +9,7 @@ export class VoiceHandler {
   constructor(params: {
     type: "playback" | "record";
     file?: number | Audio.AVPlaybackSourceObject | Asset.Asset;
+    onFinished?: (params?: any) => {};
   }) {
     if (params.type === "record") {
       // Audio.Audio.Recording.createAsync(
@@ -25,13 +26,18 @@ export class VoiceHandler {
           .then(({ sound, status }) => {
             this._sound = sound;
             this._soundStatus = status;
+            params?.onFinished?.();
           })
-          .catch();
+          .catch((e) => {
+            params?.onFinished?.(e);
+          });
       }
     }
   }
   async startPlayAudio() {
+    dlog.log("startPlayAudio:", this._soundStatus);
     if (this._soundStatus?.isLoaded === true) {
+      // await this._sound?.setVolumeAsync(100);
       this._sound?.playAsync();
     }
   }

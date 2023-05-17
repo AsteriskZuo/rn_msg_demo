@@ -55,60 +55,15 @@ export const LogMemo = React.memo(
         } else {
           logRef.current = str;
         }
-        console.log("test:log:", logRef.current);
+        // console.log("test:log:", logRef.current);
         try {
           setLog(logRef.current);
         } catch (error) {
           console.log("log:", error);
         }
-        // setLog(logRef.current);
       };
     }
 
-    // React.useEffect(() => {
-    //   const init = () => {
-    //     console.log("LogMemo:init:");
-    //     if (propsRef.current) {
-    //       propsRef.current.logHandler = (
-    //         message?: any,
-    //         ...optionalParams: any[]
-    //       ) => {
-    //         const arr = [message, ...optionalParams];
-    //         let str = logRef.current;
-    //         for (const a of arr) {
-    //           if (a?.toString) {
-    //             str += a.toString() + " ";
-    //           }
-    //         }
-    //         if (str.trim().length > 0) {
-    //           str += "\n";
-    //         }
-    //         const ret = str.matchAll(/\n/g);
-    //         let count = 0;
-    //         for (const {} of ret) {
-    //           ++count;
-    //         }
-    //         if (count > mln) {
-    //           const pos = str.indexOf("\n");
-    //           if (pos > 0) {
-    //             const t = str.substring(pos + 1);
-    //             logRef.current = t;
-    //           }
-    //         } else {
-    //           logRef.current = str;
-    //         }
-    //         console.log("test:log:", logRef.current);
-    //         try {
-    //           // setLog(logRef.current);
-    //         } catch (error) {
-    //           console.log("log:", error);
-    //         }
-    //         // setLog(logRef.current);
-    //       };
-    //     }
-    //   };
-    //   init();
-    // }, [mln, propsRef]);
     return (
       <ScrollView style={[styles.container, containerStyle]}>
         <Text style={style}>{log}</Text>

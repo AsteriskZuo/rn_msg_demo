@@ -126,19 +126,19 @@ export async function getImageExistedPath(
   do {
     if (msg.localThumbPath && msg.localThumbPath.length > 0) {
       isExisted = await new FileHandler().isExisted({
-        fileUri: localUrlEscape(updateUrl(msg.localThumbPath)),
+        fileUri: updateUrl(msg.localThumbPath),
       });
       if (isExisted === true) {
-        ret = localUrlEscape(updateUrl(msg.localThumbPath));
+        ret = updateUrl(msg.localThumbPath);
         break;
       }
     }
     if (msg.localPath && msg.localPath.length > 0) {
       isExisted = await new FileHandler().isExisted({
-        fileUri: localUrlEscape(updateUrl(msg.localPath)),
+        fileUri: updateUrl(msg.localPath),
       });
       if (isExisted === true) {
-        ret = localUrlEscape(updateUrl(msg.localPath));
+        ret = updateUrl(msg.localPath);
         break;
       }
     }
@@ -431,9 +431,13 @@ const ImageMessageRenderItemDefault: ListRenderItem<MessageItemType> =
           </View>
           <View>
             <RNImage
-              source={{
-                uri: _url,
-              }}
+              source={
+                _url.length === 0
+                  ? 0
+                  : {
+                      uri: _url,
+                    }
+              }
               resizeMode="contain"
               resizeMethod="scale"
               style={{ height: height, width: width, borderRadius: 10 }}
@@ -445,6 +449,7 @@ const ImageMessageRenderItemDefault: ListRenderItem<MessageItemType> =
               }}
               onError={() => {
                 dlog.log("test:onError:");
+                setUrl("");
                 // setUrl(
                 //   "https://dogefs.s3.ladydaily.com/~/source/unsplash/photo-1622697872837-f353c9be5ab8?ixlib=rb-4.0.3&q=85&fmt=jpg&crop=entropy&cs=srgb&dl=chen-jian-fm6_ysxat6Y-unsplash.jpg&w=640"
                 // );

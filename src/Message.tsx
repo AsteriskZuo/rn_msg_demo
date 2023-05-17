@@ -46,10 +46,12 @@ import {
   MessageItemStateType,
   MessageItemType,
   TextMessageItemType,
+  updateUrl,
   VideoMessageItemType,
   VoiceMessageItemType,
 } from "./MessageBubbleList";
 import { VoiceHandler } from "./VoiceHandler";
+import * as Audio from "expo-av";
 
 type MessageScreenProps = NativeStackScreenProps<typeof RootParamsList>;
 
@@ -74,7 +76,25 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
   );
   const { height: windowHeight } = useWindowDimensions();
 
-  const onPress = React.useCallback((_: MessageItemType) => {}, []);
+  const onPress = React.useCallback((data: MessageItemType) => {
+    switch (data.type) {
+      case ChatMessageType.VOICE:
+        const voice = data as VoiceMessageItemType;
+        voiceRef.current = new VoiceHandler({
+          type: "playback",
+          file: {
+            uri: updateUrl(voice.localPath),
+          } as Audio.AVPlaybackSourceObject,
+          onFinished: async () => {
+            await voiceRef.current?.startPlayAudio();
+          },
+        });
+        break;
+
+      default:
+        break;
+    }
+  }, []);
 
   const onLongPress = React.useCallback(
     (data: MessageItemType) => {
@@ -98,14 +118,14 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
             ChatClient.getInstance()
               .chatManager.downloadAttachment(msg, {
                 onProgress: (localMsgId: string, progress: number) => {
-                  dlog.log("test:onProgress:", localMsgId, progress);
+                  dlog.log("onProgress:", localMsgId, progress);
                 },
                 onError: (localMsgId: string, error: ChatError) => {
-                  dlog.log("test:onError:", localMsgId, error);
+                  dlog.log("onError:", localMsgId, error);
                 },
                 onSuccess: (message: ChatMessage) => {
                   // TODO: update status
-                  dlog.log("test:onSuccess:", message.localMsgId);
+                  dlog.log("onSuccess:", message.localMsgId);
                 },
               } as ChatMessageStatusCallback)
               .then()
@@ -135,6 +155,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
           state: "sending",
           onPress: onPress,
           onLongPress: onLongPress,
+          type: ChatMessageType.TXT,
         } as MessageItemType,
       ],
       direction: "after",
@@ -521,7 +542,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
 
   const openFile = async () => {
     const ret = await new FileHandler().getFile();
-    dlog.log("test:openFile:", ret);
+    dlog.log("openFile:", ret);
     if (ret.cancelled !== true) {
       contentRef.current = { file: ret };
       setJson(JSON.stringify(contentRef.current));
@@ -529,7 +550,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
   };
   const openImage = async () => {
     const ret = await new ImageHandler().getImage();
-    dlog.log("test:openImage:", ret);
+    dlog.log("openImage:", ret);
     if (ret.cancelled !== true) {
       contentRef.current = { image: ret };
       setJson(JSON.stringify(contentRef.current));
@@ -537,7 +558,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
   };
   const openCamera = async () => {
     const ret = await new ImageHandler().getCamera();
-    dlog.log("test:openCamera:", ret);
+    dlog.log("openCamera:", ret);
     if (ret.cancelled !== true) {
       contentRef.current = { image: ret };
       setJson(JSON.stringify(contentRef.current));
@@ -546,10 +567,10 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
   const openVideo = async () => {
     const video = new VideoHandler();
     const ret = await video.getVideo();
-    dlog.log("test:openVideo:", ret);
+    dlog.log("openVideo:", ret);
     if (ret.cancelled !== true) {
       const _ret = await video.getThumbnail({ fileName: ret.uri });
-      dlog.log("test:openVideo:", _ret);
+      dlog.log("openVideo:", _ret);
       contentRef.current = { video: ret, thumb: _ret };
       setJson(JSON.stringify(contentRef.current));
     }
@@ -557,7 +578,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
   const stopRecord = async () => {
     if (voiceRef.current) {
       const ret = await voiceRef.current.stopRecording();
-      dlog.log("test:stopRecord:", ret);
+      dlog.log("stopRecord:", ret);
       contentRef.current = { voice: ret };
       setJson(JSON.stringify(contentRef.current));
       voiceRef.current = undefined;
