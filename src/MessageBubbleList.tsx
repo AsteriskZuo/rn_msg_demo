@@ -754,6 +754,12 @@ export type MessageBubbleListRef = {
     msgs: MessageItemType[];
     direction: InsertDirectionType;
   }) => void;
+  updateMessageState: (params: {
+    localMsgId: string;
+    result: boolean;
+    reason?: any;
+    item?: MessageItemType;
+  }) => void;
 };
 export type MessageBubbleListProps = {
   propRef: React.RefObject<MessageBubbleListRef>;
@@ -881,6 +887,31 @@ export function MessageBubbleList(props: MessageBubbleListProps): JSX.Element {
         list: params.msgs,
         direction: params.direction,
       });
+    };
+    propRef.current.updateMessageState = (params: {
+      localMsgId: string;
+      result: boolean;
+      reason?: any;
+      item?: MessageItemType;
+    }) => {
+      if (params.result === true && params.item) {
+        updateData({
+          type: "update-all",
+          list: [params.item],
+          direction: "after",
+        });
+      } else {
+        updateData({
+          type: "update-part",
+          list: [
+            {
+              key: params.localMsgId,
+              state: "failed",
+            } as MessageItemType,
+          ],
+          direction: "after",
+        });
+      }
     };
   }
 

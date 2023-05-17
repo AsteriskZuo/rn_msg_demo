@@ -22,7 +22,7 @@ import { LogMemo } from "./src/Log";
 const Root = createNativeStackNavigator();
 
 const App = () => {
-  dlog.log("App:");
+  // dlog.log("App:");
   const [ready, setReady] = React.useState(false);
   const enableLog = true;
   const logHeightRef = React.useRef<number | string>(1);
@@ -113,7 +113,7 @@ const App = () => {
           bottom: 0,
         }}
         propsRef={logRef}
-        maxLineNumber={10}
+        maxLineNumber={100}
       />
     </>
   );

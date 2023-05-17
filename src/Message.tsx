@@ -8,17 +8,22 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from "react-native";
 import * as React from "react";
 import { Picker } from "@react-native-picker/picker";
 import {
   ChatClient,
+  ChatCustomMessageBody,
   ChatError,
   ChatFileMessageBody,
   ChatImageMessageBody,
+  ChatLocationMessageBody,
   ChatMessage,
+  ChatMessageDirection,
   ChatMessageEventListener,
+  ChatMessageStatus,
   ChatMessageStatusCallback,
   ChatMessageType,
   ChatTextMessageBody,
@@ -31,11 +36,14 @@ import { FileHandler } from "./FileHandler";
 import { ImageHandler } from "./ImageHandler";
 import { VideoHandler } from "./VideoHandler";
 import {
+  CustomMessageItemType,
   FileMessageItemType,
   ImageMessageItemType,
   InsertDirectionType,
+  LocationMessageItemType,
   MessageBubbleList,
   MessageBubbleListRef,
+  MessageItemStateType,
   MessageItemType,
   TextMessageItemType,
   VideoMessageItemType,
@@ -49,8 +57,8 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
   dlog.log("MessageScreen:", route);
   const params = route.params as any;
   const currentId = params?.currentId ?? "";
-  // const chatId = params?.chatId ?? "";
-  // const chatType = params?.chatType ?? 0;
+  const chatId = params?.chatId ?? "";
+  const chatType = params?.chatType ?? 0;
   const [selectedType, setSelectedType] = React.useState(
     ChatMessageType.TXT.toString()
   );
@@ -59,6 +67,54 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
   const seqId = React.useRef(0);
   const [json, setJson] = React.useState("This is file info.");
   const voiceRef = React.useRef<VoiceHandler | undefined>();
+  const [visible, setVisible] = React.useState<boolean>(false);
+  const msgBubbleDataRef = React.useRef<MessageItemType | undefined>();
+  const [msgBubbleData, setMsgBubbleData] = React.useState(
+    msgBubbleDataRef.current
+  );
+  const { height: windowHeight } = useWindowDimensions();
+
+  const onPress = React.useCallback((_: MessageItemType) => {}, []);
+
+  const onLongPress = React.useCallback(
+    (data: MessageItemType) => {
+      msgBubbleDataRef.current = data;
+      setMsgBubbleData(msgBubbleDataRef.current);
+      setVisible(visible === true ? false : true);
+    },
+    [visible]
+  );
+
+  const downloadAttachment = (item: MessageItemType) => {
+    if (
+      item.type === ChatMessageType.FILE ||
+      item.type === ChatMessageType.VIDEO ||
+      item.type === ChatMessageType.IMAGE
+    ) {
+      ChatClient.getInstance()
+        .chatManager.getMessage(item.msgId)
+        .then((msg) => {
+          if (msg) {
+            ChatClient.getInstance()
+              .chatManager.downloadAttachment(msg, {
+                onProgress: (localMsgId: string, progress: number) => {
+                  dlog.log("test:onProgress:", localMsgId, progress);
+                },
+                onError: (localMsgId: string, error: ChatError) => {
+                  dlog.log("test:onError:", localMsgId, error);
+                },
+                onSuccess: (message: ChatMessage) => {
+                  // TODO: update status
+                  dlog.log("test:onSuccess:", message.localMsgId);
+                },
+              } as ChatMessageStatusCallback)
+              .then()
+              .catch();
+          }
+        })
+        .catch();
+    }
+  };
 
   const genBubbleData = () => {
     let ret = {} as
@@ -77,36 +133,8 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
           key: seqId.current.toString(),
           msgId: seqId.current.toString(),
           state: "sending",
-          onPress: (item) => {
-            if (
-              item.type === ChatMessageType.FILE ||
-              item.type === ChatMessageType.VIDEO ||
-              item.type === ChatMessageType.IMAGE
-            ) {
-              ChatClient.getInstance()
-                .chatManager.getMessage(item.msgId)
-                .then((msg) => {
-                  if (msg) {
-                    ChatClient.getInstance()
-                      .chatManager.downloadAttachment(msg, {
-                        onProgress: (localMsgId: string, progress: number) => {
-                          dlog.log("test:onProgress:", localMsgId, progress);
-                        },
-                        onError: (localMsgId: string, error: ChatError) => {
-                          dlog.log("test:onError:", localMsgId, error);
-                        },
-                        onSuccess: (message: ChatMessage) => {
-                          // TODO: update status
-                        },
-                      } as ChatMessageStatusCallback)
-                      .then()
-                      .catch();
-                  }
-                })
-                .catch();
-            }
-          },
-          onLongPress: (data) => {},
+          onPress: onPress,
+          onLongPress: onLongPress,
         } as MessageItemType,
       ],
       direction: "after",
@@ -205,12 +233,289 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
     return ret;
   };
   const genMsgData = () => {
-    return {} as any;
+    let ret: ChatMessage | undefined;
+    const t = selectedType as ChatMessageType;
+    switch (t) {
+      case ChatMessageType.CMD:
+        ret = undefined;
+        break;
+      case ChatMessageType.CUSTOM:
+        ret = undefined;
+        break;
+      case ChatMessageType.FILE:
+        {
+          const file = contentRef.current.file as {
+            name: string;
+            size?: number | undefined;
+            uri: string;
+            mimeType?: string | undefined;
+            lastModified?: number | undefined;
+            file?: any;
+            output?: any;
+          };
+          const filePath = file.uri ?? "";
+          const displayName = file.name;
+          ret = ChatMessage.createFileMessage(chatId, filePath, chatType, {
+            displayName,
+          });
+        }
+        break;
+      case ChatMessageType.IMAGE:
+        {
+          const image = contentRef.current.image as {
+            uri: string;
+            width: number;
+            height: number;
+            exif?: Record<string, any>;
+            base64?: string;
+            duration?: number;
+          };
+          const localPath = image.uri;
+          const width = image.width;
+          const height = image.height;
+          ret = ChatMessage.createImageMessage(chatId, localPath, chatType, {
+            displayName: "",
+            width,
+            height,
+          });
+        }
+
+        break;
+      case ChatMessageType.LOCATION:
+        ret = undefined;
+        break;
+      case ChatMessageType.TXT:
+        {
+          const text = contentRef.current?.text;
+          ret = ChatMessage.createTextMessage(chatId, text, chatType);
+        }
+        break;
+      case ChatMessageType.VIDEO:
+        {
+          const video = contentRef.current.video as {
+            uri: string;
+            width: number;
+            height: number;
+            exif?: Record<string, any>;
+            base64?: string;
+            duration?: number;
+          };
+          const thumb = contentRef.current.thumb as {
+            uri: string;
+            width: number;
+            height: number;
+          };
+          const localPath = video.uri;
+          const thumbnailLocalPath = thumb.uri;
+          const duration = video.duration;
+          const width = thumb.width;
+          const height = thumb.height;
+          ret = ChatMessage.createVideoMessage(chatId, localPath, chatType, {
+            displayName: "",
+            width,
+            height,
+            duration: duration ?? 0,
+            thumbnailLocalPath,
+          });
+        }
+        break;
+      case ChatMessageType.VOICE:
+        {
+          const voice = contentRef.current.voice as {
+            uri: string;
+            duration: number;
+          };
+          const localPath = voice.uri;
+          const duration = voice.duration;
+          ret = ChatMessage.createVoiceMessage(chatId, localPath, chatType, {
+            displayName: "",
+            duration,
+          });
+        }
+        break;
+
+      default:
+        ret = undefined;
+        break;
+    }
+    return ret;
   };
+
+  const convertFromMessage = React.useCallback(
+    (msg: ChatMessage): MessageItemType => {
+      const convertFromMessageState = (msg: ChatMessage) => {
+        let ret: MessageItemStateType;
+        if (msg.status === ChatMessageStatus.SUCCESS) {
+          ret = "arrived" as MessageItemStateType;
+        } else if (msg.status === ChatMessageStatus.CREATE) {
+          ret = "sending" as MessageItemStateType;
+        } else if (msg.status === ChatMessageStatus.FAIL) {
+          ret = "failed" as MessageItemStateType;
+        } else if (msg.status === ChatMessageStatus.PROGRESS) {
+          if (msg.direction === ChatMessageDirection.RECEIVE) {
+            ret = "receiving" as MessageItemStateType;
+          } else {
+            ret = "sending" as MessageItemStateType;
+          }
+        } else {
+          ret = "failed" as MessageItemStateType;
+        }
+        if (ret === "sending" || ret === "receiving") {
+          if (Date.now() > msg.localTime + 1000 * 60) {
+            ret = "failed";
+          }
+        }
+        return ret;
+      };
+      const convertFromMessageBody = (
+        msg: ChatMessage,
+        item: MessageItemType
+      ) => {
+        const type = msg.body.type;
+        switch (type) {
+          case ChatMessageType.VOICE:
+            {
+              const body = msg.body as ChatVoiceMessageBody;
+              const r = item as VoiceMessageItemType;
+              r.localPath = body.localPath;
+              r.remoteUrl = body.remotePath;
+              r.fileSize = body.fileSize;
+              r.fileStatus = body.fileStatus;
+              r.duration = body.duration;
+              r.displayName = body.displayName;
+              r.type = ChatMessageType.VOICE;
+            }
+            break;
+          case ChatMessageType.IMAGE:
+            {
+              const body = msg.body as ChatImageMessageBody;
+              const r = item as ImageMessageItemType;
+              r.localPath = body.localPath;
+              r.remoteUrl = body.remotePath;
+              r.fileSize = body.fileSize;
+              r.fileStatus = body.fileStatus;
+              r.displayName = body.displayName;
+              r.localThumbPath = body.thumbnailLocalPath;
+              r.remoteThumbPath = body.thumbnailRemotePath;
+              r.type = ChatMessageType.IMAGE;
+            }
+            break;
+          case ChatMessageType.TXT:
+            {
+              const body = msg.body as ChatTextMessageBody;
+              const r = item as TextMessageItemType;
+              r.text = body.content;
+              r.type = ChatMessageType.TXT;
+            }
+            break;
+          case ChatMessageType.CUSTOM:
+            {
+              const body = msg.body as ChatCustomMessageBody;
+              const r = item as CustomMessageItemType;
+              r.SubComponentProps = {
+                eventType: body.event,
+                data: body.params,
+                ...item,
+              } as MessageItemType & { eventType: string; data: any };
+              r.type = ChatMessageType.CUSTOM;
+            }
+            break;
+          case ChatMessageType.LOCATION:
+            {
+              const body = msg.body as ChatLocationMessageBody;
+              const r = item as LocationMessageItemType;
+              r.address = body.address;
+              r.latitude = body.latitude;
+              r.longitude = body.longitude;
+              r.type = ChatMessageType.LOCATION;
+            }
+            break;
+          case ChatMessageType.FILE:
+            {
+              const body = msg.body as ChatFileMessageBody;
+              const r = item as FileMessageItemType;
+              r.localPath = body.localPath;
+              r.remoteUrl = body.remotePath;
+              r.fileSize = body.fileSize;
+              r.fileStatus = body.fileStatus;
+              r.displayName = body.displayName;
+              r.type = ChatMessageType.FILE;
+            }
+            break;
+          case ChatMessageType.VIDEO:
+            {
+              const body = msg.body as ChatVideoMessageBody;
+              const r = item as VideoMessageItemType;
+              r.localPath = body.localPath;
+              r.remoteUrl = body.remotePath;
+              r.fileSize = body.fileSize;
+              r.fileStatus = body.fileStatus;
+              r.duration = body.duration;
+              r.thumbnailLocalPath = body.thumbnailLocalPath;
+              r.thumbnailRemoteUrl = body.thumbnailRemotePath;
+              r.width = body.width;
+              r.height = body.height;
+              r.displayName = body.displayName;
+              r.type = ChatMessageType.VIDEO;
+            }
+            break;
+          default:
+            throw new Error("This is impossible.");
+        }
+      };
+      const r = {
+        sender: msg.from,
+        timestamp: msg.serverTime,
+        isSender: msg.direction === ChatMessageDirection.RECEIVE ? false : true,
+        key: msg.localMsgId,
+        msgId: msg.msgId,
+        state: convertFromMessageState(msg),
+        ext: msg.attributes,
+        onPress: onPress,
+        onLongPress: onLongPress,
+      } as MessageItemType;
+      convertFromMessageBody(msg, r);
+      return r;
+    },
+    [onLongPress, onPress]
+  );
+
   const onSend = () => {
-    const ret = genBubbleData();
-    if (ret) {
-      msgRef.current?.addMessage(ret);
+    const msg = genMsgData();
+    if (msg) {
+      const bubble = genBubbleData();
+      if (bubble) {
+        const b = bubble.msgs[0] as MessageItemType;
+        b.key = msg.localMsgId;
+        b.msgId = msg.msgId;
+        msgRef.current?.addMessage(bubble);
+      }
+      ChatClient.getInstance()
+        .chatManager.sendMessage(msg, {
+          onProgress: (localMsgId: string, progress: number) => {
+            dlog.log("onProgress:", localMsgId, progress);
+          },
+          onError: (localMsgId: string, error: ChatError) => {
+            dlog.log("onError:", localMsgId, error);
+            msgRef.current?.updateMessageState({
+              localMsgId,
+              result: false,
+              reason: error,
+            });
+          },
+          onSuccess: (message: ChatMessage) => {
+            dlog.log("onSuccess:", message.localMsgId);
+            msgRef.current?.updateMessageState({
+              localMsgId: message.localMsgId,
+              result: true,
+              item: convertFromMessage(message),
+            });
+          },
+        } as ChatMessageStatusCallback)
+        .then()
+        .catch((e) => {
+          dlog.log("sendMessage:error:", e);
+        });
     }
   };
 
@@ -277,39 +582,8 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
             key: seqId.current.toString(),
             msgId: message.msgId,
             state: "arrived",
-            onPress: (item) => {
-              if (
-                item.type === ChatMessageType.FILE ||
-                item.type === ChatMessageType.VIDEO ||
-                item.type === ChatMessageType.IMAGE
-              ) {
-                ChatClient.getInstance()
-                  .chatManager.getMessage(item.msgId)
-                  .then((msg) => {
-                    if (msg) {
-                      ChatClient.getInstance()
-                        .chatManager.downloadAttachment(msg, {
-                          onProgress: (
-                            localMsgId: string,
-                            progress: number
-                          ) => {
-                            dlog.log("onProgress:", localMsgId, progress);
-                          },
-                          onError: (localMsgId: string, error: ChatError) => {
-                            dlog.log("onError:", localMsgId, error);
-                          },
-                          onSuccess: (message: ChatMessage) => {
-                            // TODO: update status
-                          },
-                        } as ChatMessageStatusCallback)
-                        .then()
-                        .catch();
-                    }
-                  })
-                  .catch();
-              }
-            },
-            onLongPress: (data) => {},
+            onPress: onPress,
+            onLongPress: onLongPress,
           } as MessageItemType,
         ],
         direction: "after",
@@ -395,9 +669,11 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
             message.body.type === ChatMessageType.VIDEO ||
             message.body.type === ChatMessageType.VOICE
           ) {
-            const ret = genBubbleDataFromServer(message);
-            if (ret) {
-              msgRef.current?.addMessage(ret);
+            if (message.conversationId === chatId) {
+              const ret = genBubbleDataFromServer(message);
+              if (ret) {
+                msgRef.current?.addMessage(ret);
+              }
             }
           }
         }
@@ -407,14 +683,35 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
     return () => {
       ChatClient.getInstance().chatManager.removeAllMessageListener();
     };
-  }, [currentId]);
+  }, [chatId, currentId, onLongPress, onPress]);
 
-  const RenderContextMenu = ({ data }: { data: MessageItemType }) => {
+  const RenderContextMenu = ({
+    visible,
+    data,
+    onClose,
+  }: {
+    data: MessageItemType;
+    visible: boolean;
+    onClose: ({ data, type }: { data: MessageItemType; type: "da" }) => void;
+  }) => {
     return (
-      <Modal style={{ display: "none" }}>
-        <View style={{ backgroundColor: "red" }}>
-          <TouchableOpacity>
-            <Text>download attachment</Text>
+      <Modal visible={visible} animationType={"fade"} transparent={true}>
+        <View
+          style={{
+            backgroundColor: "#F2F2F2",
+            width: 200,
+            alignSelf: "center",
+            padding: 20,
+            borderRadius: 5,
+            top: windowHeight / 2,
+          }}
+        >
+          <TouchableOpacity
+            onPress={() => {
+              onClose({ data, type: "da" });
+            }}
+          >
+            <Text style={{ color: "blue" }}>download attachment</Text>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -628,7 +925,16 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
         </View>
         <RenderBody type={selectedType as ChatMessageType} />
       </View>
-      {/* <RenderContextMenu /> */}
+      <RenderContextMenu
+        data={msgBubbleData ?? ({} as MessageItemType)}
+        visible={visible}
+        onClose={({ data, type }) => {
+          setVisible(visible === true ? false : true);
+          if (type === "da") {
+            downloadAttachment(data);
+          }
+        }}
+      />
     </View>
   );
 }
