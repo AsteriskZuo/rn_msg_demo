@@ -1,3 +1,5 @@
+/* eslint-disable react-native/no-inline-styles */
+/* eslint-disable react/no-unstable-nested-components */
 /**
  * Sample React Native App
  * https://github.com/facebook/react-native
@@ -14,12 +16,16 @@ import { MainScreen } from "./src/Main";
 import { MessageScreen } from "./src/Message";
 import { AppServerClient } from "./src/AppServerClient";
 import { ChatClient, ChatOptions } from "react-native-chat-sdk";
-import { ActivityIndicator } from "react-native";
+import {
+  ActivityIndicator,
+  DeviceEventEmitter,
+  Text,
+  TouchableOpacity,
+} from "react-native";
 
 const Root = createNativeStackNavigator();
 
 const App = () => {
-  // return <View style={{flex: 1, backgroundColor: 'red'}}/>;
   dlog.log("App:");
   const [ready, setReady] = React.useState(false);
   const enableLog = true;
@@ -56,12 +62,54 @@ const App = () => {
   return (
     <NavigationContainer>
       <Root.Navigator initialRouteName="Main">
-        <Root.Screen name="Main" component={MainScreen} />
+        <Root.Screen
+          options={() => {
+            return {
+              headerRight: () => {
+                return (
+                  <TouchableOpacity
+                    onPress={() => {
+                      DeviceEventEmitter.emit("open_log", {
+                        name: "Main",
+                      });
+                    }}
+                  >
+                    <Text style={{ fontWeight: "600", color: "blue" }}>
+                      DevLog
+                    </Text>
+                  </TouchableOpacity>
+                );
+              },
+            };
+          }}
+          name="Main"
+          component={MainScreen}
+        />
         <Root.Screen
           options={() => {
             return {
               headerShown: true,
               presentation: "fullScreenModal",
+              headerRight: () => {
+                return (
+                  <TouchableOpacity
+                    onPress={() => {
+                      DeviceEventEmitter.emit("open_log", {
+                        name: "Message",
+                      });
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontWeight: "600",
+                        color: "blue",
+                      }}
+                    >
+                      DevLog
+                    </Text>
+                  </TouchableOpacity>
+                );
+              },
             };
           }}
           name="Message"
@@ -73,7 +121,6 @@ const App = () => {
 };
 
 export default App;
-
 
 // import * as React from "react";
 // import { Button, StyleSheet, Text, View } from "react-native";

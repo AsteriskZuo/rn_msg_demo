@@ -1,3 +1,6 @@
+/* eslint-disable react-native/no-inline-styles */
+/* eslint-disable @typescript-eslint/no-shadow */
+/* eslint-disable react/no-unstable-nested-components */
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import * as React from "react";
 import { Picker } from "@react-native-picker/picker";
@@ -15,7 +18,7 @@ import {
   ChatVoiceMessageBody,
 } from "react-native-chat-sdk";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootParamsList } from "./config";
+import { dlog, RootParamsList } from "./config";
 import { FileHandler } from "./FileHandler";
 import { ImageHandler } from "./ImageHandler";
 import { VideoHandler } from "./VideoHandler";
@@ -35,11 +38,11 @@ import { VoiceHandler } from "./VoiceHandler";
 type MessageScreenProps = NativeStackScreenProps<typeof RootParamsList>;
 
 export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
-  console.log("MessageScreen:", route);
+  dlog.log("MessageScreen:", route);
   const params = route.params as any;
   const currentId = params?.currentId ?? "";
-  const chatId = params?.chatId ?? "";
-  const chatType = params?.chatType ?? 0;
+  // const chatId = params?.chatId ?? "";
+  // const chatType = params?.chatType ?? 0;
   const [selectedType, setSelectedType] = React.useState(
     ChatMessageType.TXT.toString()
   );
@@ -79,10 +82,10 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
                     ChatClient.getInstance()
                       .chatManager.downloadAttachment(msg, {
                         onProgress: (localMsgId: string, progress: number) => {
-                          console.log("test:onProgress:", localMsgId, progress);
+                          dlog.log("test:onProgress:", localMsgId, progress);
                         },
                         onError: (localMsgId: string, error: ChatError) => {
-                          console.log("test:onError:", localMsgId, error);
+                          dlog.log("test:onError:", localMsgId, error);
                         },
                         onSuccess: (message: ChatMessage) => {
                           // TODO: update status
@@ -205,7 +208,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
 
   const openFile = async () => {
     const ret = await new FileHandler().getFile();
-    console.log("test:openFile:", ret);
+    dlog.log("test:openFile:", ret);
     if (ret.cancelled !== true) {
       contentRef.current = { file: ret };
       setJson(JSON.stringify(contentRef.current));
@@ -213,7 +216,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
   };
   const openImage = async () => {
     const ret = await new ImageHandler().getImage();
-    console.log("test:openImage:", ret);
+    dlog.log("test:openImage:", ret);
     if (ret.cancelled !== true) {
       contentRef.current = { image: ret };
       setJson(JSON.stringify(contentRef.current));
@@ -221,7 +224,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
   };
   const openCamera = async () => {
     const ret = await new ImageHandler().getCamera();
-    console.log("test:openCamera:", ret);
+    dlog.log("test:openCamera:", ret);
     if (ret.cancelled !== true) {
       contentRef.current = { image: ret };
       setJson(JSON.stringify(contentRef.current));
@@ -230,10 +233,10 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
   const openVideo = async () => {
     const video = new VideoHandler();
     const ret = await video.getVideo();
-    console.log("test:openVideo:", ret);
+    dlog.log("test:openVideo:", ret);
     if (ret.cancelled !== true) {
       const _ret = await video.getThumbnail({ fileName: ret.uri });
-      console.log("test:openVideo:", _ret);
+      dlog.log("test:openVideo:", _ret);
       contentRef.current = { video: ret, thumb: _ret };
       setJson(JSON.stringify(contentRef.current));
     }
@@ -241,7 +244,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
   const stopRecord = async () => {
     if (voiceRef.current) {
       const ret = await voiceRef.current.stopRecording();
-      console.log("test:stopRecord:", ret);
+      dlog.log("test:stopRecord:", ret);
       contentRef.current = { voice: ret };
       setJson(JSON.stringify(contentRef.current));
       voiceRef.current = undefined;
@@ -282,14 +285,10 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
                             localMsgId: string,
                             progress: number
                           ) => {
-                            console.log(
-                              "test:onProgress:",
-                              localMsgId,
-                              progress
-                            );
+                            dlog.log("onProgress:", localMsgId, progress);
                           },
                           onError: (localMsgId: string, error: ChatError) => {
-                            console.log("test:onError:", localMsgId, error);
+                            dlog.log("onError:", localMsgId, error);
                           },
                           onSuccess: (message: ChatMessage) => {
                             // TODO: update status
@@ -400,7 +399,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
     return () => {
       ChatClient.getInstance().chatManager.removeAllMessageListener();
     };
-  }, []);
+  }, [currentId]);
 
   const RenderVoiceButton = React.memo(
     ({ onStart, onEnd }: { onStart?: () => void; onEnd?: () => void }) => {

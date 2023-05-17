@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-shadow */
+/* eslint-disable react-native/no-inline-styles */
 import {
   ActivityIndicator,
   FlatList,
@@ -11,15 +13,13 @@ import {
   useWindowDimensions,
 } from "react-native";
 import * as React from "react";
-import {
-  ChatDownloadStatus,
-  ChatMessageType,
-} from "react-native-chat-sdk";
+import { ChatDownloadStatus, ChatMessageType } from "react-native-chat-sdk";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
 import { FileHandler } from "./FileHandler";
 import Lottie from "lottie-react-native";
 import { Video, ResizeMode } from "expo-av";
+import { dlog } from "./config";
 
 export type MessageItemStateType =
   | "unread"
@@ -132,7 +132,6 @@ export async function getImageExistedPath(
         ret = localUrlEscape(updateUrl(msg.localThumbPath));
         break;
       }
-      console.log("test:get:", ret, msg);
     }
     if (msg.localPath && msg.localPath.length > 0) {
       isExisted = await new FileHandler().isExisted({
@@ -150,7 +149,9 @@ export async function getImageExistedPath(
 
 const RenderRecallMessage = (props: MessageItemType): JSX.Element => {
   const { state, ext, ...others } = props;
-  if (state === ("" as any)) console.log(others);
+  if (state === ("" as any)) {
+    dlog.log(others);
+  }
   if (state === "recalled") {
     const tip = ext.recall.tip;
     return (
@@ -359,7 +360,6 @@ const ImageMessageRenderItemDefault: ListRenderItem<MessageItemType> =
 
       const checked = async (msg: ImageMessageItemType, count: number = 0) => {
         const ret = await urlAsync(msg);
-        console.log("test:msg:", ret, msg);
         if (ret) {
           setUrl(updateUrl(ret));
         } else {
@@ -438,13 +438,13 @@ const ImageMessageRenderItemDefault: ListRenderItem<MessageItemType> =
               resizeMethod="scale"
               style={{ height: height, width: width, borderRadius: 10 }}
               onLoad={(e) => {
-                console.log("test:onLoad:", e.nativeEvent);
+                dlog.log("test:onLoad:", e.nativeEvent);
                 const ret = hw(e.nativeEvent.source);
                 setHeight(ret.height);
                 setWidth(ret.width);
               }}
               onError={() => {
-                console.log("test:onError:");
+                dlog.log("test:onError:");
                 // setUrl(
                 //   "https://dogefs.s3.ladydaily.com/~/source/unsplash/photo-1622697872837-f353c9be5ab8?ixlib=rb-4.0.3&q=85&fmt=jpg&crop=entropy&cs=srgb&dl=chen-jian-fm6_ysxat6Y-unsplash.jpg&w=640"
                 // );
@@ -678,7 +678,7 @@ const VideoMessageRenderItemDefault: ListRenderItem<MessageItemType> =
               useNativeControls
               resizeMode={ResizeMode.CONTAIN}
               isLooping
-              onPlaybackStatusUpdate={(status) => setStatus(() => status)}
+              onPlaybackStatusUpdate={(s) => setStatus(() => s)}
               onReadyForDisplay={(e) => {
                 const ret = hw(e.naturalSize);
                 setHeight(ret.height);
@@ -759,7 +759,7 @@ export type MessageBubbleListProps = {
   propRef: React.RefObject<MessageBubbleListRef>;
 };
 export function MessageBubbleList(props: MessageBubbleListProps): JSX.Element {
-  console.log("MessageBubbleList:", props);
+  dlog.log("MessageBubbleList:", props);
   const { propRef } = props;
   const data1 = React.useMemo(() => [] as MessageItemType[], []);
   const data2 = React.useMemo(() => [] as MessageItemType[], []);

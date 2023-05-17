@@ -1,5 +1,6 @@
 import * as Audio from "expo-av";
 import * as Asset from "expo-asset";
+import { dlog } from "./config";
 export class VoiceHandler {
   private _sound?: Audio.Audio.Sound;
   private _soundStatus?: Audio.AVPlaybackStatus;
@@ -40,27 +41,27 @@ export class VoiceHandler {
 
   async startRecording() {
     try {
-      console.log("Requesting permissions..");
+      dlog.log("Requesting permissions..");
       await Audio.Audio.requestPermissionsAsync();
       await Audio.Audio.setAudioModeAsync({
         allowsRecordingIOS: true,
         playsInSilentModeIOS: true,
       });
 
-      console.log("Starting recording..");
+      dlog.log("Starting recording..");
       const { recording, status } = await Audio.Audio.Recording.createAsync(
         Audio.Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY
       );
-      console.log("Recording started");
+      dlog.log("Recording started");
       this._recording = recording;
       this._recordingStatus = status;
     } catch (err) {
-      console.error("Failed to start recording", err);
+      dlog.error("Failed to start recording", err);
     }
   }
 
   async stopRecording() {
-    console.log("Stopping recording..");
+    dlog.log("Stopping recording..");
     if (this._recordingStatus?.isRecording === true) {
       await this._recording?.stopAndUnloadAsync();
       await Audio.Audio.setAudioModeAsync({
@@ -68,11 +69,7 @@ export class VoiceHandler {
       });
       const uri = this._recording?.getURI();
       const ms = this._recordingStatus?.durationMillis; // todo: bug?
-      console.log(
-        "Recording stopped and stored at",
-        uri,
-        this._recordingStatus
-      );
+      dlog.log("Recording stopped and stored at", uri, this._recordingStatus);
       this._recording = undefined;
       this._recordingStatus = undefined;
       return { uri, duration: ms };

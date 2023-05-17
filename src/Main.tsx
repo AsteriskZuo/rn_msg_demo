@@ -1,6 +1,12 @@
 import * as React from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  DeviceEventEmitter,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   RootParamsList,
@@ -31,9 +37,11 @@ export function MainScreen({
   const type = accountType;
   const logRef = React.useRef({
     logHandler: (message?: any, ...optionalParams: any[]) => {
-      console.log(message, ...optionalParams);
+      dlog.log(message, ...optionalParams);
     },
   });
+  const logHeightRef = React.useRef<number | string>(1);
+  const [logHeight, setLogHeight] = React.useState(logHeightRef.current);
 
   dlog.handler = (message?: any, ...optionalParams: any[]) => {
     logRef.current?.logHandler?.(message, ...optionalParams);
@@ -69,7 +77,7 @@ export function MainScreen({
           setLogged(true);
         })
         .catch((e) => {
-          console.log("login:error:", e);
+          dlog.log("login:error:", e);
           if (e.code === 200) {
             setLogged(true);
           }
@@ -98,6 +106,7 @@ export function MainScreen({
   };
   const gotoMessage = React.useCallback(
     async (params: { chatId: string; chatType: number }) => {
+      // eslint-disable-next-line @typescript-eslint/no-shadow
       const { chatId, chatType } = params;
       if (logged !== true) {
         dlog.log("gotoMessage:", "Please log in first.");
@@ -109,10 +118,20 @@ export function MainScreen({
       }
       navigation.push("Message", { chatId, chatType, currentId: id });
     },
-    [logged, navigation]
+    [id, logged, navigation]
   );
+
   const addListener = React.useCallback(() => {
-    return () => {};
+    const sub = DeviceEventEmitter.addListener("open_log", (data) => {
+      const d = data as { name: string };
+      if (d.name === "Main") {
+        logHeightRef.current = logHeightRef.current === 1 ? "100%" : 1;
+        setLogHeight(logHeightRef.current);
+      }
+    });
+    return () => {
+      sub.remove();
+    };
   }, []);
   React.useEffect(() => {
     const ret = addListener();
@@ -170,19 +189,27 @@ export function MainScreen({
           <Pressable
             style={styles.button}
             onPress={() => {
-              gotoMessage({ chatId: chatId, chatType: parseInt(chatType) });
+              gotoMessage({ chatId: chatId, chatType: parseInt(chatType, 10) });
             }}
           >
             <Text style={styles.buttonText}>Send Message</Text>
           </Pressable>
         </View>
-        <LogMemo propsRef={logRef} />
       </View>
+      <LogMemo
+        containerStyle={[styles.log, { height: logHeight }]}
+        propsRef={logRef}
+        maxLineNumber={100}
+      />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  log: {
+    position: "absolute",
+    width: "100%",
+  },
   container: {
     flex: 1,
     backgroundColor: "white",
