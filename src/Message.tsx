@@ -2,7 +2,9 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable react/no-unstable-nested-components */
 import {
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -126,6 +128,11 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
                 onSuccess: (message: ChatMessage) => {
                   // TODO: update status
                   dlog.log("onSuccess:", message.localMsgId);
+                  msgRef.current?.updateMessageState({
+                    localMsgId: message.localMsgId,
+                    result: true,
+                    item: convertFromMessage(message),
+                  });
                 },
               } as ChatMessageStatusCallback)
               .then()
@@ -331,13 +338,27 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
           const duration = video.duration;
           const width = thumb.width;
           const height = thumb.height;
-          ret = ChatMessage.createVideoMessage(chatId, localPath, chatType, {
-            displayName: "",
-            width,
-            height,
-            duration: duration ?? 0,
-            thumbnailLocalPath,
-          });
+          // todo: ios: advise change the file:// protocol supported by ios.
+          const localPathIos = localPath.replace("file://", "");
+          const thumbnailLocalPathIos = thumbnailLocalPath.replace(
+            "file://",
+            ""
+          );
+          ret = ChatMessage.createVideoMessage(
+            chatId,
+            Platform.select({ ios: localPathIos, default: localPath }),
+            chatType,
+            {
+              displayName: "",
+              width,
+              height,
+              duration: duration ?? 0,
+              thumbnailLocalPath: Platform.select({
+                ios: thumbnailLocalPathIos,
+                default: thumbnailLocalPath,
+              }),
+            }
+          );
         }
         break;
       case ChatMessageType.VOICE:
@@ -557,7 +578,15 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
     }
   };
   const openCamera = async () => {
-    const ret = await new ImageHandler().getCamera();
+    const image = new ImageHandler();
+    const per = await image.getPermission();
+    if (per !== true) {
+      const _per = await image.requestPermission();
+      if (_per !== true) {
+        return;
+      }
+    }
+    const ret = await image.getCamera();
     dlog.log("openCamera:", ret);
     if (ret.cancelled !== true) {
       contentRef.current = { image: ret };
@@ -706,6 +735,12 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
     };
   }, [chatId, currentId, onLongPress, onPress]);
 
+  // There are problems with react-navigation native stack and keyboard being used together.
+  const keyboardVerticalOffset = Platform.select({
+    ios: 64,
+    default: 0,
+  });
+
   const RenderContextMenu = ({
     visible,
     data,
@@ -823,6 +858,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
         ret = (
           <View style={styles.txt}>
             <TextInput
+              style={{ height: 30 }}
               placeholder="Please input text content..."
               onChangeText={(t) => {
                 contentRef.current = { text: t };
@@ -887,65 +923,72 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
       >
         <MessageBubbleList propRef={msgRef} />
       </View>
-      <View
-        style={{
-          // backgroundColor: "yellow",
-          padding: 10,
-        }}
+      <KeyboardAvoidingView
+        pointerEvents="box-none"
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={keyboardVerticalOffset}
       >
-        <View style={{ flexDirection: "row" }}>
-          <Picker
-            style={{
-              height: 30,
-              width: 150,
-            }}
-            selectedValue={selectedType}
-            onValueChange={(itemValue, _) => setSelectedType(itemValue)}
-          >
-            <Picker.Item
-              label={ChatMessageType.CMD}
-              value={ChatMessageType.CMD.toString()}
-            />
-            <Picker.Item
-              label={ChatMessageType.CUSTOM}
-              value={ChatMessageType.CUSTOM.toString()}
-            />
-            <Picker.Item
-              label={ChatMessageType.FILE}
-              value={ChatMessageType.FILE.toString()}
-            />
-            <Picker.Item
-              label={ChatMessageType.IMAGE}
-              value={ChatMessageType.IMAGE.toString()}
-            />
-            <Picker.Item
-              label={ChatMessageType.LOCATION}
-              value={ChatMessageType.LOCATION.toString()}
-            />
-            <Picker.Item
-              label={ChatMessageType.TXT}
-              value={ChatMessageType.TXT.toString()}
-            />
-            <Picker.Item
-              label={ChatMessageType.VIDEO}
-              value={ChatMessageType.VIDEO.toString()}
-            />
-            <Picker.Item
-              label={ChatMessageType.VOICE}
-              value={ChatMessageType.VOICE.toString()}
-            />
-          </Picker>
-          <Pressable
-            style={styles.button}
-            onPress={() => {
-              onSend();
-            }}
-          >
-            <Text style={styles.buttonText}>Send Message</Text>
-          </Pressable>
+        <View
+          style={{
+            // backgroundColor: "yellow",
+            padding: 10,
+          }}
+        >
+          <View style={{ flexDirection: "row" }}>
+            <Picker
+              style={{
+                height: Platform.select({ ios: 200, default: 30 }),
+                width: 200,
+              }}
+              selectedValue={selectedType}
+              onValueChange={(itemValue, _) => setSelectedType(itemValue)}
+            >
+              <Picker.Item
+                label={ChatMessageType.CMD}
+                value={ChatMessageType.CMD.toString()}
+              />
+              <Picker.Item
+                label={ChatMessageType.CUSTOM}
+                value={ChatMessageType.CUSTOM.toString()}
+              />
+              <Picker.Item
+                label={ChatMessageType.FILE}
+                value={ChatMessageType.FILE.toString()}
+              />
+              <Picker.Item
+                label={ChatMessageType.IMAGE}
+                value={ChatMessageType.IMAGE.toString()}
+              />
+              <Picker.Item
+                label={ChatMessageType.LOCATION}
+                value={ChatMessageType.LOCATION.toString()}
+              />
+              <Picker.Item
+                label={ChatMessageType.TXT}
+                value={ChatMessageType.TXT.toString()}
+              />
+              <Picker.Item
+                label={ChatMessageType.VIDEO}
+                value={ChatMessageType.VIDEO.toString()}
+              />
+              <Picker.Item
+                label={ChatMessageType.VOICE}
+                value={ChatMessageType.VOICE.toString()}
+              />
+            </Picker>
+            <Pressable
+              style={styles.button}
+              onPress={() => {
+                onSend();
+              }}
+            >
+              <Text style={styles.buttonText}>Send Message</Text>
+            </Pressable>
+          </View>
+          <RenderBody type={selectedType as ChatMessageType} />
         </View>
-        <RenderBody type={selectedType as ChatMessageType} />
-      </View>
+      </KeyboardAvoidingView>
+
       <RenderContextMenu
         data={msgBubbleData ?? ({} as MessageItemType)}
         visible={visible}

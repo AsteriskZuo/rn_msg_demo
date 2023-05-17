@@ -1,5 +1,5 @@
 import * as DocumentPicker from "expo-document-picker";
-import * as fileSystem from 'expo-file-system';
+import * as fileSystem from "expo-file-system";
 
 export class FileHandler {
   constructor() {}
@@ -13,8 +13,12 @@ export class FileHandler {
       return { ...others, cancelled: false };
     }
   }
-  async isExisted(params: {fileUri: string}) {
-    const ret = await fileSystem.getInfoAsync(params.fileUri);
-    return ret.exists;
+  async isExisted(params: { fileUri: string }) {
+    try {
+      const ret = await fileSystem.getInfoAsync(params.fileUri);
+      return ret.exists;
+    } catch (error) {
+      return false;
+    }
   }
 }

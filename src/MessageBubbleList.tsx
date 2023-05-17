@@ -594,14 +594,14 @@ const VideoMessageRenderItemDefault: ListRenderItem<MessageItemType> =
       const [height, setHeight] = React.useState((wWidth * 0.6 * 4) / 3);
       const video = React.useRef<Video>({} as any);
       const [status, setStatus] = React.useState({} as any);
-      const [url, setUrl] = React.useState(msg.remoteUrl);
+      const [url, setUrl] = React.useState(msg.remoteUrl ?? msg.localPath);
 
       const onCheck = async () => {
         const ret = await new FileHandler().isExisted({
-          fileUri: msg.localPath,
+          fileUri: updateUrl(msg.localPath),
         });
         if (ret) {
-          setUrl(msg.localPath);
+          setUrl(updateUrl(msg.localPath));
         }
       };
 
@@ -683,12 +683,24 @@ const VideoMessageRenderItemDefault: ListRenderItem<MessageItemType> =
               useNativeControls
               resizeMode={ResizeMode.CONTAIN}
               isLooping
-              onPlaybackStatusUpdate={(s) => setStatus(() => s)}
+              onPlaybackStatusUpdate={(s) =>
+                setStatus(() => {
+                  dlog.log("video:onPlaybackStatusUpdate:", s);
+                  return s;
+                })
+              }
               onReadyForDisplay={(e) => {
+                dlog.log("video:onReadyForDisplay:", e);
                 const ret = hw(e.naturalSize);
                 setHeight(ret.height);
                 setWidth(ret.width);
+              }}
+              onError={(e) => {
+                dlog.log("video:onError:", e);
                 onCheck();
+              }}
+              onLoad={(s) => {
+                dlog.log("video:status:", s);
               }}
             />
           </Pressable>

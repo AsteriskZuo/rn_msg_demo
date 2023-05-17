@@ -16,7 +16,12 @@ import { MainScreen } from "./src/Main";
 import { MessageScreen } from "./src/Message";
 import { AppServerClient } from "./src/AppServerClient";
 import { ChatClient, ChatOptions } from "react-native-chat-sdk";
-import { ActivityIndicator, Text, TouchableOpacity } from "react-native";
+import {
+  ActivityIndicator,
+  Platform,
+  Text,
+  TouchableOpacity,
+} from "react-native";
 import { LogMemo } from "./src/Log";
 
 const Root = createNativeStackNavigator();
@@ -33,9 +38,11 @@ const App = () => {
       console.log(message, ...optionalParams);
     },
   });
-  dlog.handler = (message?: any, ...optionalParams: any[]) => {
-    logRef.current?.logHandler?.(message, ...optionalParams);
-  };
+  if (Platform.OS !== "ios") {
+    dlog.handler = (message?: any, ...optionalParams: any[]) => {
+      logRef.current?.logHandler?.(message, ...optionalParams);
+    };
+  }
 
   if (accountType !== "easemob") {
     AppServerClient.rtcTokenUrl = "https://a41.easemob.com/token/rtc/channel";
@@ -96,8 +103,12 @@ const App = () => {
             options={() => {
               return {
                 headerShown: true,
-                presentation: "fullScreenModal",
+                presentation: Platform.select({
+                  ios: undefined,
+                  default: "fullScreenModal",
+                }),
                 headerRight: HeaderRight,
+                headerBackVisible: true,
               };
             }}
             name="Message"

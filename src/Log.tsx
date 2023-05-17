@@ -6,6 +6,8 @@ import {
   ViewStyle,
   StyleProp,
   TextStyle,
+  Platform,
+  View,
 } from "react-native";
 
 const max_count = 10;
@@ -25,6 +27,11 @@ export const LogMemo = React.memo(
     const mln = React.useRef(maxLineNumber ?? max_count).current;
     const [log, setLog] = React.useState("");
     const logRef = React.useRef("");
+
+    if (Platform.OS === "ios") {
+      // bug: matchAll on iOS Platform
+      return <View />;
+    }
 
     if (propsRef.current) {
       propsRef.current.logHandler = (
