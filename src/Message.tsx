@@ -748,7 +748,13 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
   }: {
     data: MessageItemType;
     visible: boolean;
-    onClose: ({ data, type }: { data: MessageItemType; type: "da" }) => void;
+    onClose: ({
+      data,
+      type,
+    }: {
+      data: MessageItemType;
+      type: "da" | "cancel";
+    }) => void;
   }) => {
     return (
       <Modal visible={visible} animationType={"fade"} transparent={true}>
@@ -763,11 +769,20 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
           }}
         >
           <TouchableOpacity
+            style={{ height: 30 }}
             onPress={() => {
               onClose({ data, type: "da" });
             }}
           >
             <Text style={{ color: "blue" }}>download attachment</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ height: 30 }}
+            onPress={() => {
+              onClose({ data, type: "cancel" });
+            }}
+          >
+            <Text style={{ color: "blue" }}>cancel</Text>
           </TouchableOpacity>
         </View>
       </Modal>
