@@ -11,25 +11,25 @@ import {
   Text,
   View,
   useWindowDimensions,
-} from "react-native";
-import * as React from "react";
-import { ChatDownloadStatus, ChatMessageType } from "react-native-chat-sdk";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
-import { FileHandler } from "./FileHandler";
-import Lottie from "lottie-react-native";
-import { Video, ResizeMode } from "expo-av";
-import { dlog } from "./config";
+} from 'react-native';
+import * as React from 'react';
+import { ChatDownloadStatus, ChatMessageType } from 'react-native-chat-sdk';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { AntDesign, Feather, MaterialIcons } from '@expo/vector-icons';
+import { FileHandler } from './FileHandler';
+import Lottie from 'lottie-react-native';
+import { Video, ResizeMode } from 'expo-av';
+import { dlog } from './config';
 
 export type MessageItemStateType =
-  | "unread"
-  | "read"
-  | "arrived"
-  | "played"
-  | "sending"
-  | "failed"
-  | "receiving"
-  | "recalled";
+  | 'unread'
+  | 'read'
+  | 'arrived'
+  | 'played'
+  | 'sending'
+  | 'failed'
+  | 'receiving'
+  | 'recalled';
 
 export interface MessageItemType {
   sender: string;
@@ -87,9 +87,9 @@ export interface FileMessageItemType extends MessageItemType {
 
 export const StateLabel = React.memo(
   ({ state }: { state?: MessageItemStateType }) => {
-    if (state === "sending") {
+    if (state === 'sending') {
       return <ActivityIndicator size={12} />;
-    } else if (state === "failed") {
+    } else if (state === 'failed') {
       return <AntDesign name="exclamationcircleo" size={12} color="red" />;
     } else {
       return <Ionicons name="checkmark-done" size={12} color="green" />;
@@ -98,8 +98,8 @@ export const StateLabel = React.memo(
 );
 
 function localUrlEscape(localPath: string): string {
-  if (localPath.startsWith("file://")) {
-    return localPath.replace(/#/g, "%23").replace(/ /g, "%20");
+  if (localPath.startsWith('file://')) {
+    return localPath.replace(/#/g, '%23').replace(/ /g, '%20');
   } else {
     return localPath;
   }
@@ -107,10 +107,10 @@ function localUrlEscape(localPath: string): string {
 
 export function updateUrl(url: string) {
   let r = url;
-  if (r.startsWith("http://") === false && r.startsWith("https://") === false) {
+  if (r.startsWith('http://') === false && r.startsWith('https://') === false) {
     if (r.length > 0) {
-      r = r.includes("file://") ? r : `file://${r}`;
-      if (r.includes("file://")) {
+      r = r.includes('file://') ? r : `file://${r}`;
+      if (r.includes('file://')) {
         r = localUrlEscape(r);
       }
     }
@@ -149,13 +149,13 @@ export async function getImageExistedPath(
 
 const RenderRecallMessage = (props: MessageItemType): JSX.Element => {
   const { state, ext, ...others } = props;
-  if (state === ("" as any)) {
+  if (state === ('' as any)) {
     dlog.log(others);
   }
-  if (state === "recalled") {
+  if (state === 'recalled') {
     const tip = ext.recall.tip;
     return (
-      <View style={{ flex: 1, justifyContent: "center" }}>
+      <View style={{ flex: 1, justifyContent: 'center' }}>
         <Text>{tip}</Text>
       </View>
     );
@@ -169,7 +169,7 @@ const TextMessageRenderItemDefault: ListRenderItem<MessageItemType> =
       const { width: screenWidth } = useWindowDimensions();
       const { item } = info;
       const msg = item as TextMessageItemType;
-      if (item.state === "recalled") {
+      if (item.state === 'recalled') {
         return <RenderRecallMessage {...item} />;
       }
       return (
@@ -177,7 +177,7 @@ const TextMessageRenderItemDefault: ListRenderItem<MessageItemType> =
           style={[
             styles.container,
             {
-              flexDirection: msg.isSender ? "row-reverse" : "row",
+              flexDirection: msg.isSender ? 'row-reverse' : 'row',
               maxWidth: screenWidth * 0.9,
             },
           ]}
@@ -206,8 +206,8 @@ const TextMessageRenderItemDefault: ListRenderItem<MessageItemType> =
               style={[
                 styles.text,
                 {
-                  backgroundColor: msg.isSender ? "#0041FF" : "#F2F2F2",
-                  color: msg.isSender ? "white" : "#333333",
+                  backgroundColor: msg.isSender ? '#0041FF' : '#F2F2F2',
+                  color: msg.isSender ? 'white' : '#333333',
                 },
               ]}
             >
@@ -236,7 +236,7 @@ export const FileMessageRenderItemDefault: ListRenderItem<MessageItemType> =
       const { width: screenWidth } = useWindowDimensions();
       const { item } = info;
       const msg = item as FileMessageItemType;
-      if (item.state === "recalled") {
+      if (item.state === 'recalled') {
         return <RenderRecallMessage {...item} />;
       }
 
@@ -245,7 +245,7 @@ export const FileMessageRenderItemDefault: ListRenderItem<MessageItemType> =
           style={[
             styles.container,
             {
-              flexDirection: msg.isSender ? "row-reverse" : "row",
+              flexDirection: msg.isSender ? 'row-reverse' : 'row',
               maxWidth: screenWidth * 0.9,
             },
           ]}
@@ -282,9 +282,9 @@ export const FileMessageRenderItemDefault: ListRenderItem<MessageItemType> =
                   style={[
                     {
                       fontSize: 15,
-                      fontWeight: "600",
+                      fontWeight: '600',
                       lineHeight: 22,
-                      color: "#333333",
+                      color: '#333333',
                       maxWidth: screenWidth * 0.6,
                     },
                   ]}
@@ -296,9 +296,9 @@ export const FileMessageRenderItemDefault: ListRenderItem<MessageItemType> =
                   style={[
                     {
                       fontSize: 12,
-                      fontWeight: "400",
+                      fontWeight: '400',
                       lineHeight: 20,
-                      color: "#666666",
+                      color: '#666666',
                       maxWidth: screenWidth * 0.6,
                     },
                   ]}
@@ -348,7 +348,7 @@ const ImageMessageRenderItemDefault: ListRenderItem<MessageItemType> =
         } else if (msg.localPath && msg.localPath.length > 0) {
           r = msg.localPath;
         } else {
-          r = msg.remoteUrl ?? "";
+          r = msg.remoteUrl ?? '';
         }
         return updateUrl(r);
       };
@@ -405,7 +405,7 @@ const ImageMessageRenderItemDefault: ListRenderItem<MessageItemType> =
         return ret;
       };
 
-      if (item.state === "recalled") {
+      if (item.state === 'recalled') {
         return <RenderRecallMessage {...item} />;
       }
 
@@ -414,7 +414,7 @@ const ImageMessageRenderItemDefault: ListRenderItem<MessageItemType> =
           style={[
             styles.container,
             {
-              flexDirection: msg.isSender ? "row-reverse" : "row",
+              flexDirection: msg.isSender ? 'row-reverse' : 'row',
               // maxWidth: '80%',
             },
           ]}
@@ -442,14 +442,14 @@ const ImageMessageRenderItemDefault: ListRenderItem<MessageItemType> =
               resizeMethod="scale"
               style={{ height: height, width: width, borderRadius: 10 }}
               onLoad={(e) => {
-                dlog.log("test:onLoad:", e.nativeEvent);
+                dlog.log('test:onLoad:', e.nativeEvent);
                 const ret = hw(e.nativeEvent.source);
                 setHeight(ret.height);
                 setWidth(ret.width);
               }}
               onError={() => {
-                dlog.log("test:onError:");
-                setUrl("");
+                dlog.log('test:onError:');
+                setUrl('');
                 // setUrl(
                 //   "https://dogefs.s3.ladydaily.com/~/source/unsplash/photo-1622697872837-f353c9be5ab8?ixlib=rb-4.0.3&q=85&fmt=jpg&crop=entropy&cs=srgb&dl=chen-jian-fm6_ysxat6Y-unsplash.jpg&w=640"
                 // );
@@ -481,7 +481,7 @@ const Voice = ({ isPlaying }: { isPlaying: boolean }) => {
     return (
       <Lottie
         source={{
-          uri: "https://assets3.lottiefiles.com/packages/lf20_p8wyx27k.json",
+          uri: 'https://assets3.lottiefiles.com/packages/lf20_p8wyx27k.json',
         }}
         autoPlay
         loop
@@ -503,14 +503,14 @@ const VoiceMessageRenderItemDefault: ListRenderItem<MessageItemType> =
       const [isPlaying, setIsPlaying] = React.useState(isPlayingRef.current);
       const _width = (duration: number) => {
         if (duration < 0) {
-          throw new Error("The voice length cannot be less than 0.");
+          throw new Error('The voice length cannot be less than 0.');
         }
         let r = width * 0.7 * (1 / 60) * (duration > 60 ? 60 : duration);
         r += 150;
         return r;
       };
 
-      if (item.state === "recalled") {
+      if (item.state === 'recalled') {
         return <RenderRecallMessage {...item} />;
       }
 
@@ -519,7 +519,7 @@ const VoiceMessageRenderItemDefault: ListRenderItem<MessageItemType> =
           style={[
             styles.container,
             {
-              flexDirection: msg.isSender ? "row-reverse" : "row",
+              flexDirection: msg.isSender ? 'row-reverse' : 'row',
               width: _width(msg.duration ?? 1),
             },
           ]}
@@ -538,14 +538,14 @@ const VoiceMessageRenderItemDefault: ListRenderItem<MessageItemType> =
             style={[
               styles.innerContainer,
               {
-                flexDirection: msg.isSender ? "row-reverse" : "row",
-                justifyContent: "space-between",
+                flexDirection: msg.isSender ? 'row-reverse' : 'row',
+                justifyContent: 'space-between',
                 borderBottomRightRadius: msg.isSender ? undefined : 12,
                 borderBottomLeftRadius: msg.isSender ? 12 : undefined,
-                backgroundColor: msg.isSender ? "#0041FF" : "#F2F2F2",
+                backgroundColor: msg.isSender ? '#0041FF' : '#F2F2F2',
                 flexGrow: 1,
                 paddingHorizontal: 12,
-                alignItems: "center",
+                alignItems: 'center',
               },
             ]}
           >
@@ -561,8 +561,8 @@ const VoiceMessageRenderItemDefault: ListRenderItem<MessageItemType> =
               style={[
                 styles.text,
                 {
-                  color: msg.isSender ? "white" : "black",
-                  backgroundColor: msg.isSender ? "#0041FF" : "#F2F2F2",
+                  color: msg.isSender ? 'white' : 'black',
+                  backgroundColor: msg.isSender ? '#0041FF' : '#F2F2F2',
                 },
               ]}
             >
@@ -640,7 +640,7 @@ const VideoMessageRenderItemDefault: ListRenderItem<MessageItemType> =
         return ret;
       };
 
-      if (item.state === "recalled") {
+      if (item.state === 'recalled') {
         return <RenderRecallMessage {...item} />;
       }
 
@@ -649,7 +649,7 @@ const VideoMessageRenderItemDefault: ListRenderItem<MessageItemType> =
           style={[
             styles.container,
             {
-              flexDirection: msg.isSender ? "row-reverse" : "row",
+              flexDirection: msg.isSender ? 'row-reverse' : 'row',
               // maxWidth: '80%',
             },
           ]}
@@ -685,22 +685,22 @@ const VideoMessageRenderItemDefault: ListRenderItem<MessageItemType> =
               isLooping
               onPlaybackStatusUpdate={(s) =>
                 setStatus(() => {
-                  dlog.log("video:onPlaybackStatusUpdate:", s);
+                  dlog.log('video:onPlaybackStatusUpdate:', s);
                   return s;
                 })
               }
               onReadyForDisplay={(e) => {
-                dlog.log("video:onReadyForDisplay:", e);
+                dlog.log('video:onReadyForDisplay:', e);
                 const ret = hw(e.naturalSize);
                 setHeight(ret.height);
                 setWidth(ret.width);
               }}
               onError={(e) => {
-                dlog.log("video:onError:", e);
+                dlog.log('video:onError:', e);
                 onCheck();
               }}
               onLoad={(s) => {
-                dlog.log("video:status:", s);
+                dlog.log('video:status:', s);
               }}
             />
           </Pressable>
@@ -751,13 +751,13 @@ const MessageRenderItem: ListRenderItem<MessageItemType> = (
         item.onLongPress?.(item);
       }}
       style={{
-        width: "100%",
+        width: '100%',
         alignItems:
           item.isTip === true
-            ? "center"
+            ? 'center'
             : item.isSender === true
-            ? "flex-end"
-            : "flex-start",
+            ? 'flex-end'
+            : 'flex-start',
       }}
     >
       <MessageItem {...info} />
@@ -765,7 +765,7 @@ const MessageRenderItem: ListRenderItem<MessageItemType> = (
   );
 };
 
-export type InsertDirectionType = "before" | "after";
+export type InsertDirectionType = 'before' | 'after';
 export type MessageBubbleListRef = {
   addMessage: (params: {
     msgs: MessageItemType[];
@@ -782,7 +782,7 @@ export type MessageBubbleListProps = {
   propRef: React.RefObject<MessageBubbleListRef>;
 };
 export function MessageBubbleList(props: MessageBubbleListProps): JSX.Element {
-  dlog.log("MessageBubbleList:", props);
+  dlog.log('MessageBubbleList:', props);
   const { propRef } = props;
   const data1 = React.useMemo(() => [] as MessageItemType[], []);
   const data2 = React.useMemo(() => [] as MessageItemType[], []);
@@ -808,7 +808,7 @@ export function MessageBubbleList(props: MessageBubbleListProps): JSX.Element {
         setItems(data1);
         currentData.current = data1;
       } else {
-        throw new Error("This is impossible.");
+        throw new Error('This is impossible.');
       }
     },
     [data1, data2]
@@ -820,13 +820,13 @@ export function MessageBubbleList(props: MessageBubbleListProps): JSX.Element {
       list,
       direction,
     }: {
-      type: "add" | "update-all" | "update-part" | "del-one";
+      type: 'add' | 'update-all' | 'update-part' | 'del-one';
       list: MessageItemType[];
       direction: InsertDirectionType;
     }) => {
       switch (type) {
-        case "add":
-          if (direction === "after") {
+        case 'add':
+          if (direction === 'after') {
             items.push(...list);
           } else {
             const tmp = list.concat(items);
@@ -834,7 +834,7 @@ export function MessageBubbleList(props: MessageBubbleListProps): JSX.Element {
             items.push(...tmp);
           }
           break;
-        case "update-all":
+        case 'update-all':
           for (let index = 0; index < items.length; index++) {
             const item = items[index];
             if (item) {
@@ -846,7 +846,7 @@ export function MessageBubbleList(props: MessageBubbleListProps): JSX.Element {
             }
           }
           break;
-        case "update-part":
+        case 'update-part':
           for (let index = 0; index < items.length; index++) {
             const item = items[index];
             for (const i of list) {
@@ -858,7 +858,7 @@ export function MessageBubbleList(props: MessageBubbleListProps): JSX.Element {
             }
           }
           break;
-        case "del-one":
+        case 'del-one':
           {
             let hadDeleted = false;
             for (let index = 0; index < items.length; index++) {
@@ -900,7 +900,7 @@ export function MessageBubbleList(props: MessageBubbleListProps): JSX.Element {
       direction: InsertDirectionType;
     }) => {
       updateData({
-        type: "add",
+        type: 'add',
         list: params.msgs,
         direction: params.direction,
       });
@@ -913,20 +913,20 @@ export function MessageBubbleList(props: MessageBubbleListProps): JSX.Element {
     }) => {
       if (params.result === true && params.item) {
         updateData({
-          type: "update-all",
+          type: 'update-all',
           list: [params.item],
-          direction: "after",
+          direction: 'after',
         });
       } else {
         updateData({
-          type: "update-part",
+          type: 'update-part',
           list: [
             {
               key: params.localMsgId,
-              state: "failed",
+              state: 'failed',
             } as MessageItemType,
           ],
-          direction: "after",
+          direction: 'after',
         });
       }
     };
@@ -934,7 +934,7 @@ export function MessageBubbleList(props: MessageBubbleListProps): JSX.Element {
 
   return (
     <FlatList
-      style={{ backgroundColor: "white" }}
+      style={{ backgroundColor: 'white' }}
       data={items}
       extraData={items}
       renderItem={MessageRenderItem}
@@ -947,10 +947,10 @@ export function MessageBubbleList(props: MessageBubbleListProps): JSX.Element {
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: "flex-start",
+    justifyContent: 'flex-start',
     // backgroundColor: 'yellow',
-    alignItems: "flex-end",
-    flexDirection: "row",
+    alignItems: 'flex-end',
+    flexDirection: 'row',
     padding: 10,
   },
   innerContainer: {
@@ -958,16 +958,16 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
     // backgroundColor: 'red',
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   text: {
-    backgroundColor: "rgba(242, 242, 242, 1)",
+    backgroundColor: 'rgba(242, 242, 242, 1)',
     padding: 10,
-    flexWrap: "wrap",
+    flexWrap: 'wrap',
   },
   file: {
-    flexDirection: "row",
-    backgroundColor: "rgba(242, 242, 242, 1)",
+    flexDirection: 'row',
+    backgroundColor: 'rgba(242, 242, 242, 1)',
     padding: 10,
   },
 });

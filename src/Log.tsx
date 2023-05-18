@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 import {
   Text,
   StyleSheet,
@@ -8,7 +8,7 @@ import {
   TextStyle,
   Platform,
   View,
-} from "react-native";
+} from 'react-native';
 
 const max_count = 10;
 
@@ -23,12 +23,12 @@ type LogProps = {
 };
 export const LogMemo = React.memo(
   ({ propsRef, style, containerStyle, maxLineNumber }: LogProps) => {
-    console.log("LogMemo:");
+    console.log('LogMemo:');
     const mln = React.useRef(maxLineNumber ?? max_count).current;
-    const [log, setLog] = React.useState("");
-    const logRef = React.useRef("");
+    const [log, setLog] = React.useState('');
+    const logRef = React.useRef('');
 
-    if (Platform.OS === "ios") {
+    if (Platform.OS === 'ios') {
       // bug: matchAll on iOS Platform
       return <View />;
     }
@@ -42,11 +42,11 @@ export const LogMemo = React.memo(
         let str = logRef.current;
         for (const a of arr) {
           if (a?.toString) {
-            str += a.toString() + " ";
+            str += a.toString() + ' ';
           }
         }
         if (str.trim().length > 0) {
-          str += "\n";
+          str += '\n';
         }
         const ret = str.matchAll(/\n/g);
         let count = 0;
@@ -54,7 +54,7 @@ export const LogMemo = React.memo(
           ++count;
         }
         if (count > mln) {
-          const pos = str.indexOf("\n");
+          const pos = str.indexOf('\n');
           if (pos > 0) {
             const t = str.substring(pos + 1);
             logRef.current = t;
@@ -66,7 +66,7 @@ export const LogMemo = React.memo(
         try {
           setLog(logRef.current);
         } catch (error) {
-          console.log("log:", error);
+          console.log('log:', error);
         }
       };
     }
@@ -82,6 +82,6 @@ export const LogMemo = React.memo(
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F2F2F2",
+    backgroundColor: '#F2F2F2',
   },
 });

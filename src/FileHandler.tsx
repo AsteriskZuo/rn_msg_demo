@@ -1,5 +1,5 @@
-import * as DocumentPicker from "expo-document-picker";
-import * as fileSystem from "expo-file-system";
+import * as DocumentPicker from 'expo-document-picker';
+import * as fileSystem from 'expo-file-system';
 
 export class FileHandler {
   constructor() {}
@@ -7,7 +7,7 @@ export class FileHandler {
     const ret: DocumentPicker.DocumentResult =
       await DocumentPicker.getDocumentAsync();
     const { type, ...others } = ret;
-    if (type === "cancel") {
+    if (type === 'cancel') {
       return { ...others, cancelled: true };
     } else {
       return { ...others, cancelled: false };

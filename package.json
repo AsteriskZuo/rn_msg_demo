@@ -48,6 +48,9 @@
     "env": "node generate-env.js",
     "lint": "eslint ."
   },
+  "prettier": {
+    "singleQuote": true
+  },
   "version": "1.0.0",
   "private": true,
   "name": "message_demo_ts"

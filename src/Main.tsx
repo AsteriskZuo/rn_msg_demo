@@ -1,7 +1,7 @@
-import * as React from "react";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import * as React from 'react';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   RootParamsList,
   accountType,
@@ -9,29 +9,29 @@ import {
   defaultPs,
   defaultTargetId,
   dlog,
-} from "./config";
-import { TextInput } from "react-native";
-import { ChatClient } from "react-native-chat-sdk";
-import { AppServerClient } from "./AppServerClient";
+} from './config';
+import { TextInput } from 'react-native';
+import { ChatClient } from 'react-native-chat-sdk';
+import { AppServerClient } from './AppServerClient';
 
 export function MainScreen({
   navigation,
 }: NativeStackScreenProps<typeof RootParamsList>): JSX.Element {
-  dlog.log("MainScreen:", defaultId, defaultPs);
-  const placeholder1 = "Please User Id";
-  const placeholder2 = "Please User Password or Token";
-  const placeholder3 = "Please Chat Target ID";
-  const placeholder4 = "Please Chat Target Type: 0 or 1";
+  dlog.log('MainScreen:', defaultId, defaultPs);
+  const placeholder1 = 'Please User Id';
+  const placeholder2 = 'Please User Password or Token';
+  const placeholder3 = 'Please Chat Target ID';
+  const placeholder4 = 'Please Chat Target Type: 0 or 1';
   const [id, setId] = React.useState(defaultId);
   const [token, setToken] = React.useState(defaultPs);
   const [logged, setLogged] = React.useState(false);
   const [chatId, setChatId] = React.useState(defaultTargetId);
-  const [chatType, setChatType] = React.useState("0");
+  const [chatType, setChatType] = React.useState('0');
   const type = accountType;
 
   const login = () => {
-    dlog.log("MainScreen:login:", id, token, type, id.split("0"));
-    if (type !== "easemob") {
+    dlog.log('MainScreen:login:', id, token, type, id.split('0'));
+    if (type !== 'easemob') {
       AppServerClient.getAccountToken({
         userId: id,
         userPassword: token,
@@ -40,14 +40,14 @@ export function MainScreen({
             ChatClient.getInstance()
               .loginWithAgoraToken(id, params.data.token)
               .then(() => {
-                dlog.log("loginWithAgoraToken:success:");
+                dlog.log('loginWithAgoraToken:success:');
                 setLogged(true);
               })
               .catch((e) => {
-                dlog.log("loginWithAgoraToken:error:", e);
+                dlog.log('loginWithAgoraToken:error:', e);
               });
           } else {
-            dlog.log("loginWithAgoraToken:error:", params.error);
+            dlog.log('loginWithAgoraToken:error:', params.error);
           }
         },
       });
@@ -55,11 +55,11 @@ export function MainScreen({
       ChatClient.getInstance()
         .login(id, token)
         .then(() => {
-          dlog.log("login:success:");
+          dlog.log('login:success:');
           setLogged(true);
         })
         .catch((e) => {
-          dlog.log("login:error:", e);
+          dlog.log('login:error:', e);
           if (e.code === 200) {
             setLogged(true);
           }
@@ -71,7 +71,7 @@ export function MainScreen({
       userId: id,
       userPassword: token,
       onResult: (params: { data?: any; error?: any }) => {
-        dlog.log("registerAccount:", id, token, params);
+        dlog.log('registerAccount:', id, token, params);
       },
     });
   };
@@ -79,11 +79,11 @@ export function MainScreen({
     ChatClient.getInstance()
       .logout()
       .then(() => {
-        dlog.log("logout:success:");
+        dlog.log('logout:success:');
         setLogged(false);
       })
       .catch((e) => {
-        dlog.log("logout:error:", e);
+        dlog.log('logout:error:', e);
       });
   };
   const gotoMessage = React.useCallback(
@@ -91,14 +91,14 @@ export function MainScreen({
       // eslint-disable-next-line @typescript-eslint/no-shadow
       const { chatId, chatType } = params;
       if (logged !== true) {
-        dlog.log("gotoMessage:", "Please log in first.");
+        dlog.log('gotoMessage:', 'Please log in first.');
         return;
       }
       if (chatId === undefined || chatId.trim().length === 0) {
-        dlog.log("gotoMessage:", "Please input chatId first.");
+        dlog.log('gotoMessage:', 'Please input chatId first.');
         return;
       }
-      navigation.push("Message", { chatId, chatType, currentId: id });
+      navigation.push('Message', { chatId, chatType, currentId: id });
     },
     [id, logged, navigation]
   );
@@ -111,7 +111,7 @@ export function MainScreen({
     return () => ret();
   }, [addListener]);
   return (
-    <SafeAreaView style={styles.container} edges={["right", "left", "bottom"]}>
+    <SafeAreaView style={styles.container} edges={['right', 'left', 'bottom']}>
       <View style={styles.container}>
         <View style={styles.inputContainer}>
           <TextInput
@@ -175,31 +175,31 @@ export function MainScreen({
 
 const styles = StyleSheet.create({
   log: {
-    position: "absolute",
-    width: "100%",
+    position: 'absolute',
+    width: '100%',
   },
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: 'white',
   },
   buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    flexWrap: "wrap",
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    flexWrap: 'wrap',
   },
   button: {
     height: 40,
     marginHorizontal: 10,
-    backgroundColor: "blue",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'blue',
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 10,
     borderRadius: 5,
     marginBottom: 10,
   },
   buttonText: {
-    color: "white",
-    fontWeight: "500",
+    color: 'white',
+    fontWeight: '500',
   },
   inputContainer: {
     marginHorizontal: 20,
@@ -207,9 +207,9 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
-    borderBottomColor: "#0041FF",
+    borderBottomColor: '#0041FF',
     borderBottomWidth: 1,
-    backgroundColor: "white",
+    backgroundColor: 'white',
     marginVertical: 10,
   },
 });

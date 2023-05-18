@@ -12,9 +12,9 @@ import {
   TouchableOpacity,
   useWindowDimensions,
   View,
-} from "react-native";
-import * as React from "react";
-import { Picker } from "@react-native-picker/picker";
+} from 'react-native';
+import * as React from 'react';
+import { Picker } from '@react-native-picker/picker';
 import {
   ChatClient,
   ChatCustomMessageBody,
@@ -31,12 +31,12 @@ import {
   ChatTextMessageBody,
   ChatVideoMessageBody,
   ChatVoiceMessageBody,
-} from "react-native-chat-sdk";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { dlog, RootParamsList } from "./config";
-import { FileHandler } from "./FileHandler";
-import { ImageHandler } from "./ImageHandler";
-import { VideoHandler } from "./VideoHandler";
+} from 'react-native-chat-sdk';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { dlog, RootParamsList } from './config';
+import { FileHandler } from './FileHandler';
+import { ImageHandler } from './ImageHandler';
+import { VideoHandler } from './VideoHandler';
 import {
   CustomMessageItemType,
   FileMessageItemType,
@@ -51,17 +51,17 @@ import {
   updateUrl,
   VideoMessageItemType,
   VoiceMessageItemType,
-} from "./MessageBubbleList";
-import { VoiceHandler } from "./VoiceHandler";
-import * as Audio from "expo-av";
+} from './MessageBubbleList';
+import { VoiceHandler } from './VoiceHandler';
+import * as Audio from 'expo-av';
 
 type MessageScreenProps = NativeStackScreenProps<typeof RootParamsList>;
 
 export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
-  dlog.log("MessageScreen:", route);
+  dlog.log('MessageScreen:', route);
   const params = route.params as any;
-  const currentId = params?.currentId ?? "";
-  const chatId = params?.chatId ?? "";
+  const currentId = params?.currentId ?? '';
+  const chatId = params?.chatId ?? '';
   const chatType = params?.chatType ?? 0;
   const [selectedType, setSelectedType] = React.useState(
     ChatMessageType.TXT.toString()
@@ -69,7 +69,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
   const msgRef = React.useRef<MessageBubbleListRef>({} as any);
   const contentRef = React.useRef({} as any);
   const seqId = React.useRef(0);
-  const [json, setJson] = React.useState("This is file info.");
+  const [json, setJson] = React.useState('This is file info.');
   const voiceRef = React.useRef<VoiceHandler | undefined>();
   const [visible, setVisible] = React.useState<boolean>(false);
   const msgBubbleDataRef = React.useRef<MessageItemType | undefined>();
@@ -79,14 +79,14 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
   const { height: windowHeight } = useWindowDimensions();
   const [minimize, setMinimize] = React.useState(false);
   const minimizeHeight = 60;
-  const [buttonName, setButtonName] = React.useState<"Mini" | "Comm">("Mini");
+  const [buttonName, setButtonName] = React.useState<'Mini' | 'Comm'>('Mini');
 
   const onPress = React.useCallback((data: MessageItemType) => {
     switch (data.type) {
       case ChatMessageType.VOICE:
         const voice = data as VoiceMessageItemType;
         voiceRef.current = new VoiceHandler({
-          type: "playback",
+          type: 'playback',
           file: {
             uri: updateUrl(voice.localPath),
           } as Audio.AVPlaybackSourceObject,
@@ -123,14 +123,14 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
             ChatClient.getInstance()
               .chatManager.downloadAttachment(msg, {
                 onProgress: (localMsgId: string, progress: number) => {
-                  dlog.log("onProgress:", localMsgId, progress);
+                  dlog.log('onProgress:', localMsgId, progress);
                 },
                 onError: (localMsgId: string, error: ChatError) => {
-                  dlog.log("onError:", localMsgId, error);
+                  dlog.log('onError:', localMsgId, error);
                 },
                 onSuccess: (message: ChatMessage) => {
                   // TODO: update status
-                  dlog.log("onSuccess:", message.localMsgId);
+                  dlog.log('onSuccess:', message.localMsgId);
                   msgRef.current?.updateMessageState({
                     localMsgId: message.localMsgId,
                     result: true,
@@ -162,13 +162,13 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
           isSender: true,
           key: seqId.current.toString(),
           msgId: seqId.current.toString(),
-          state: "sending",
+          state: 'sending',
           onPress: onPress,
           onLongPress: onLongPress,
           type: ChatMessageType.TXT,
         } as MessageItemType,
       ],
-      direction: "after",
+      direction: 'after',
     };
     ++seqId.current;
     switch (t) {
@@ -192,7 +192,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
             output?: any;
           };
           msg.displayName = file.name;
-          msg.localPath = file.uri ?? "";
+          msg.localPath = file.uri ?? '';
         }
         break;
       case ChatMessageType.IMAGE:
@@ -284,7 +284,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
             file?: any;
             output?: any;
           };
-          const filePath = file.uri ?? "";
+          const filePath = file.uri ?? '';
           const displayName = file.name;
           ret = ChatMessage.createFileMessage(chatId, filePath, chatType, {
             displayName,
@@ -305,7 +305,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
           const width = image.width;
           const height = image.height;
           ret = ChatMessage.createImageMessage(chatId, localPath, chatType, {
-            displayName: "",
+            displayName: '',
             width,
             height,
           });
@@ -342,17 +342,17 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
           const width = thumb.width;
           const height = thumb.height;
           // todo: ios: advise change the file:// protocol supported by ios.
-          const localPathIos = localPath.replace("file://", "");
+          const localPathIos = localPath.replace('file://', '');
           const thumbnailLocalPathIos = thumbnailLocalPath.replace(
-            "file://",
-            ""
+            'file://',
+            ''
           );
           ret = ChatMessage.createVideoMessage(
             chatId,
             Platform.select({ ios: localPathIos, default: localPath }),
             chatType,
             {
-              displayName: "",
+              displayName: '',
               width,
               height,
               duration: duration ?? 0,
@@ -373,7 +373,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
           const localPath = voice.uri;
           const duration = voice.duration;
           ret = ChatMessage.createVoiceMessage(chatId, localPath, chatType, {
-            displayName: "",
+            displayName: '',
             duration,
           });
         }
@@ -391,23 +391,23 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
       const convertFromMessageState = (msg: ChatMessage) => {
         let ret: MessageItemStateType;
         if (msg.status === ChatMessageStatus.SUCCESS) {
-          ret = "arrived" as MessageItemStateType;
+          ret = 'arrived' as MessageItemStateType;
         } else if (msg.status === ChatMessageStatus.CREATE) {
-          ret = "sending" as MessageItemStateType;
+          ret = 'sending' as MessageItemStateType;
         } else if (msg.status === ChatMessageStatus.FAIL) {
-          ret = "failed" as MessageItemStateType;
+          ret = 'failed' as MessageItemStateType;
         } else if (msg.status === ChatMessageStatus.PROGRESS) {
           if (msg.direction === ChatMessageDirection.RECEIVE) {
-            ret = "receiving" as MessageItemStateType;
+            ret = 'receiving' as MessageItemStateType;
           } else {
-            ret = "sending" as MessageItemStateType;
+            ret = 'sending' as MessageItemStateType;
           }
         } else {
-          ret = "failed" as MessageItemStateType;
+          ret = 'failed' as MessageItemStateType;
         }
-        if (ret === "sending" || ret === "receiving") {
+        if (ret === 'sending' || ret === 'receiving') {
           if (Date.now() > msg.localTime + 1000 * 60) {
-            ret = "failed";
+            ret = 'failed';
           }
         }
         return ret;
@@ -505,7 +505,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
             }
             break;
           default:
-            throw new Error("This is impossible.");
+            throw new Error('This is impossible.');
         }
       };
       const r = {
@@ -538,10 +538,10 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
       ChatClient.getInstance()
         .chatManager.sendMessage(msg, {
           onProgress: (localMsgId: string, progress: number) => {
-            dlog.log("onProgress:", localMsgId, progress);
+            dlog.log('onProgress:', localMsgId, progress);
           },
           onError: (localMsgId: string, error: ChatError) => {
-            dlog.log("onError:", localMsgId, error);
+            dlog.log('onError:', localMsgId, error);
             msgRef.current?.updateMessageState({
               localMsgId,
               result: false,
@@ -549,7 +549,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
             });
           },
           onSuccess: (message: ChatMessage) => {
-            dlog.log("onSuccess:", message.localMsgId);
+            dlog.log('onSuccess:', message.localMsgId);
             msgRef.current?.updateMessageState({
               localMsgId: message.localMsgId,
               result: true,
@@ -559,14 +559,14 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
         } as ChatMessageStatusCallback)
         .then()
         .catch((e) => {
-          dlog.log("sendMessage:error:", e);
+          dlog.log('sendMessage:error:', e);
         });
     }
   };
 
   const openFile = async () => {
     const ret = await new FileHandler().getFile();
-    dlog.log("openFile:", ret);
+    dlog.log('openFile:', ret);
     if (ret.cancelled !== true) {
       contentRef.current = { file: ret };
       setJson(JSON.stringify(contentRef.current));
@@ -574,7 +574,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
   };
   const openImage = async () => {
     const ret = await new ImageHandler().getImage();
-    dlog.log("openImage:", ret);
+    dlog.log('openImage:', ret);
     if (ret.cancelled !== true) {
       contentRef.current = { image: ret };
       setJson(JSON.stringify(contentRef.current));
@@ -590,7 +590,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
       }
     }
     const ret = await image.getCamera();
-    dlog.log("openCamera:", ret);
+    dlog.log('openCamera:', ret);
     if (ret.cancelled !== true) {
       contentRef.current = { image: ret };
       setJson(JSON.stringify(contentRef.current));
@@ -599,10 +599,10 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
   const openVideo = async () => {
     const video = new VideoHandler();
     const ret = await video.getVideo();
-    dlog.log("openVideo:", ret);
+    dlog.log('openVideo:', ret);
     if (ret.cancelled !== true) {
       const _ret = await video.getThumbnail({ fileName: ret.uri });
-      dlog.log("openVideo:", _ret);
+      dlog.log('openVideo:', _ret);
       contentRef.current = { video: ret, thumb: _ret };
       setJson(JSON.stringify(contentRef.current));
     }
@@ -610,7 +610,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
   const stopRecord = async () => {
     if (voiceRef.current) {
       const ret = await voiceRef.current.stopRecording();
-      dlog.log("stopRecord:", ret);
+      dlog.log('stopRecord:', ret);
       contentRef.current = { voice: ret };
       setJson(JSON.stringify(contentRef.current));
       voiceRef.current = undefined;
@@ -634,12 +634,12 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
             isSender: message.from === currentId ? true : false,
             key: seqId.current.toString(),
             msgId: message.msgId,
-            state: "arrived",
+            state: 'arrived',
             onPress: onPress,
             onLongPress: onLongPress,
           } as MessageItemType,
         ],
-        direction: "after",
+        direction: 'after',
       };
       ++seqId.current;
       switch (t) {
@@ -756,16 +756,16 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
       type,
     }: {
       data: MessageItemType;
-      type: "da" | "cancel";
+      type: 'da' | 'cancel';
     }) => void;
   }) => {
     return (
-      <Modal visible={visible} animationType={"fade"} transparent={true}>
+      <Modal visible={visible} animationType={'fade'} transparent={true}>
         <View
           style={{
-            backgroundColor: "#F2F2F2",
+            backgroundColor: '#F2F2F2',
             width: 200,
-            alignSelf: "center",
+            alignSelf: 'center',
             padding: 20,
             borderRadius: 5,
             top: windowHeight / 2,
@@ -774,18 +774,18 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
           <TouchableOpacity
             style={{ height: 30 }}
             onPress={() => {
-              onClose({ data, type: "da" });
+              onClose({ data, type: 'da' });
             }}
           >
-            <Text style={{ color: "blue" }}>download attachment</Text>
+            <Text style={{ color: 'blue' }}>download attachment</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{ height: 30 }}
             onPress={() => {
-              onClose({ data, type: "cancel" });
+              onClose({ data, type: 'cancel' });
             }}
           >
-            <Text style={{ color: "blue" }}>cancel</Text>
+            <Text style={{ color: 'blue' }}>cancel</Text>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -794,10 +794,10 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
 
   const RenderVoiceButton = React.memo(
     ({ onStart, onEnd }: { onStart?: () => void; onEnd?: () => void }) => {
-      const startRecordContent = "Start Record" as
-        | "Start Record"
-        | "Stop Record";
-      const stopRecordContent = "Stop Record" as "Start Record" | "Stop Record";
+      const startRecordContent = 'Start Record' as
+        | 'Start Record'
+        | 'Stop Record';
+      const stopRecordContent = 'Stop Record' as 'Start Record' | 'Stop Record';
       const [voiceButtonContent, setVoiceButtonContent] =
         React.useState(startRecordContent);
       return (
@@ -843,8 +843,8 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
         break;
       case ChatMessageType.IMAGE:
         ret = (
-          <View style={[styles.image, { flexDirection: "column" }]}>
-            <View style={{ flexDirection: "row" }}>
+          <View style={[styles.image, { flexDirection: 'column' }]}>
+            <View style={{ flexDirection: 'row' }}>
               <Pressable
                 style={[styles.button2, { marginRight: 20 }]}
                 onPress={() => {
@@ -862,8 +862,8 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
                 <Text style={styles.buttonText}>Open Camera</Text>
               </Pressable>
             </View>
-            <View style={{ flexDirection: "row" }}>
-              <Text style={{ flexWrap: "wrap" }} numberOfLines={20}>
+            <View style={{ flexDirection: 'row' }}>
+              <Text style={{ flexWrap: 'wrap' }} numberOfLines={20}>
                 {json}
               </Text>
             </View>
@@ -910,7 +910,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
             </Text>
             <RenderVoiceButton
               onStart={() => {
-                voiceRef.current = new VoiceHandler({ type: "record" });
+                voiceRef.current = new VoiceHandler({ type: 'record' });
                 voiceRef.current.startRecording();
               }}
               onEnd={() => {
@@ -943,7 +943,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
       </View>
       <KeyboardAvoidingView
         pointerEvents="box-none"
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={keyboardVerticalOffset}
       >
         <View
@@ -953,7 +953,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
             height: minimize === true ? minimizeHeight : undefined,
           }}
         >
-          <View style={{ flexDirection: "row" }}>
+          <View style={{ flexDirection: 'row' }}>
             <Picker
               style={{
                 height: Platform.select({ ios: 200, default: 30 }),
@@ -1008,7 +1008,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
               style={styles.button}
               onPress={() => {
                 setMinimize(minimize === true ? false : true);
-                setButtonName(buttonName === "Mini" ? "Comm" : "Mini");
+                setButtonName(buttonName === 'Mini' ? 'Comm' : 'Mini');
               }}
             >
               <Text style={styles.buttonText}>{buttonName}</Text>
@@ -1023,7 +1023,7 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
         visible={visible}
         onClose={({ data, type }) => {
           setVisible(visible === true ? false : true);
-          if (type === "da") {
+          if (type === 'da') {
             downloadAttachment(data);
           }
         }}
@@ -1036,9 +1036,9 @@ const styles = StyleSheet.create({
   button: {
     height: 40,
     marginHorizontal: 10,
-    backgroundColor: "blue",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'blue',
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 10,
     borderRadius: 5,
     marginBottom: 10,
@@ -1046,32 +1046,32 @@ const styles = StyleSheet.create({
   button2: {
     padding: 10,
     height: 40,
-    backgroundColor: "blue",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'blue',
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: 5,
   },
   buttonText: {
-    color: "white",
-    fontWeight: "500",
+    color: 'white',
+    fontWeight: '500',
   },
   file: {
     // backgroundColor: "green",
     borderRadius: 5,
-    justifyContent: "center",
-    flexDirection: "row",
+    justifyContent: 'center',
+    flexDirection: 'row',
   },
   image: {
     // backgroundColor: "green",
     borderRadius: 5,
-    justifyContent: "center",
-    flexDirection: "row",
+    justifyContent: 'center',
+    flexDirection: 'row',
   },
   txt: {
-    backgroundColor: "#d3d3d3",
-    overflow: "hidden",
+    backgroundColor: '#d3d3d3',
+    overflow: 'hidden',
     borderRadius: 5,
     paddingHorizontal: 10,
-    justifyContent: "center",
+    justifyContent: 'center',
   },
 });

@@ -1,5 +1,5 @@
-import * as VideoThumbnails from "expo-video-thumbnails";
-import * as ImagePicker from "expo-image-picker";
+import * as VideoThumbnails from 'expo-video-thumbnails';
+import * as ImagePicker from 'expo-image-picker';
 
 export class VideoHandler {
   constructor() {}

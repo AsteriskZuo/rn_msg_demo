@@ -7,22 +7,22 @@
  * @format
  */
 
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import React from "react";
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React from 'react';
 
-import { accountType, appKey, dlog } from "./src/config";
-import { MainScreen } from "./src/Main";
-import { MessageScreen } from "./src/Message";
-import { AppServerClient } from "./src/AppServerClient";
-import { ChatClient, ChatOptions } from "react-native-chat-sdk";
+import { accountType, appKey, dlog } from './src/config';
+import { MainScreen } from './src/Main';
+import { MessageScreen } from './src/Message';
+import { AppServerClient } from './src/AppServerClient';
+import { ChatClient, ChatOptions } from 'react-native-chat-sdk';
 import {
   ActivityIndicator,
   Platform,
   Text,
   TouchableOpacity,
-} from "react-native";
-import { LogMemo } from "./src/Log";
+} from 'react-native';
+import { LogMemo } from './src/Log';
 
 const Root = createNativeStackNavigator();
 
@@ -38,15 +38,15 @@ const App = () => {
       console.log(message, ...optionalParams);
     },
   });
-  if (Platform.OS !== "ios") {
+  if (Platform.OS !== 'ios') {
     dlog.handler = (message?: any, ...optionalParams: any[]) => {
       logRef.current?.logHandler?.(message, ...optionalParams);
     };
   }
 
-  if (accountType !== "easemob") {
-    AppServerClient.rtcTokenUrl = "https://a41.easemob.com/token/rtc/channel";
-    AppServerClient.mapUrl = "https://a41.easemob.com/agora/channel/mapper";
+  if (accountType !== 'easemob') {
+    AppServerClient.rtcTokenUrl = 'https://a41.easemob.com/token/rtc/channel';
+    AppServerClient.mapUrl = 'https://a41.easemob.com/agora/channel/mapper';
   }
 
   if (ready === false) {
@@ -63,7 +63,7 @@ const App = () => {
           setReady(true);
         })
         .catch((e) => {
-          console.warn("init:error:", e);
+          console.warn('init:error:', e);
         });
     };
     init();
@@ -77,11 +77,11 @@ const App = () => {
     return (
       <TouchableOpacity
         onPress={() => {
-          logHeightRef.current = logHeightRef.current === 1 ? "90%" : 1;
+          logHeightRef.current = logHeightRef.current === 1 ? '90%' : 1;
           setLogHeight(logHeightRef.current);
         }}
       >
-        <Text style={{ fontWeight: "600", color: "blue" }}>DevLog</Text>
+        <Text style={{ fontWeight: '600', color: 'blue' }}>DevLog</Text>
       </TouchableOpacity>
     );
   };
@@ -105,7 +105,7 @@ const App = () => {
                 headerShown: true,
                 presentation: Platform.select({
                   ios: undefined,
-                  default: "fullScreenModal",
+                  default: 'fullScreenModal',
                 }),
                 headerRight: HeaderRight,
                 headerBackVisible: true,
@@ -118,8 +118,8 @@ const App = () => {
       </NavigationContainer>
       <LogMemo
         containerStyle={{
-          position: "absolute",
-          width: "100%",
+          position: 'absolute',
+          width: '100%',
           height: logHeight,
           bottom: 0,
         }}
