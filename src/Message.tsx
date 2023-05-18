@@ -77,6 +77,9 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
     msgBubbleDataRef.current
   );
   const { height: windowHeight } = useWindowDimensions();
+  const [minimize, setMinimize] = React.useState(false);
+  const minimizeHeight = 60;
+  const [buttonName, setButtonName] = React.useState<"Mini" | "Comm">("Mini");
 
   const onPress = React.useCallback((data: MessageItemType) => {
     switch (data.type) {
@@ -947,13 +950,15 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
           style={{
             // backgroundColor: "yellow",
             padding: 10,
+            height: minimize === true ? minimizeHeight : undefined,
           }}
         >
           <View style={{ flexDirection: "row" }}>
             <Picker
               style={{
                 height: Platform.select({ ios: 200, default: 30 }),
-                width: 200,
+                width: Platform.select({ ios: 200, default: 150 }),
+                flexShrink: 1,
               }}
               selectedValue={selectedType}
               onValueChange={(itemValue, _) => setSelectedType(itemValue)}
@@ -998,6 +1003,15 @@ export function MessageScreen({ route }: MessageScreenProps): JSX.Element {
               }}
             >
               <Text style={styles.buttonText}>Send Message</Text>
+            </Pressable>
+            <Pressable
+              style={styles.button}
+              onPress={() => {
+                setMinimize(minimize === true ? false : true);
+                setButtonName(buttonName === "Mini" ? "Comm" : "Mini");
+              }}
+            >
+              <Text style={styles.buttonText}>{buttonName}</Text>
             </Pressable>
           </View>
           <RenderBody type={selectedType as ChatMessageType} />
