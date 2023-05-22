@@ -20,6 +20,7 @@ import { FileHandler } from './FileHandler';
 import Lottie from 'lottie-react-native';
 import { Video, ResizeMode } from 'expo-av';
 import { dlog } from './config';
+import FastImage from 'react-native-fast-image';
 
 export type MessageItemStateType =
   | 'unread'
@@ -338,6 +339,7 @@ const ImageMessageRenderItemDefault: ListRenderItem<MessageItemType> =
       const { width: wWidth } = useWindowDimensions();
       const [width, setWidth] = React.useState(wWidth * 0.6);
       const [height, setHeight] = React.useState((wWidth * 0.6 * 4) / 3);
+      const isFastImage = true;
 
       const url = (msg: ImageMessageItemType) => {
         let r: string;
@@ -430,35 +432,60 @@ const ImageMessageRenderItemDefault: ListRenderItem<MessageItemType> =
             <Ionicons name="person-circle" size={24} color="black" />
           </View>
           <View>
-            <RNImage
-              source={
-                _url.length === 0
-                  ? 0
-                  : {
-                      uri: _url,
-                    }
-              }
-              resizeMode="contain"
-              resizeMethod="scale"
-              style={{ height: height, width: width, borderRadius: 10 }}
-              onLoad={(e) => {
-                dlog.log('test:onLoad:', e.nativeEvent);
-                const ret = hw(e.nativeEvent.source);
-                setHeight(ret.height);
-                setWidth(ret.width);
-              }}
-              onError={() => {
-                dlog.log('test:onError:');
-                setUrl('');
-                // setUrl(
-                //   "https://dogefs.s3.ladydaily.com/~/source/unsplash/photo-1622697872837-f353c9be5ab8?ixlib=rb-4.0.3&q=85&fmt=jpg&crop=entropy&cs=srgb&dl=chen-jian-fm6_ysxat6Y-unsplash.jpg&w=640"
-                // );
-                // setUrl(
-                //   "file:///storage/emulated/0/Android/data/com.example.rn.message.demo/easemob%23easeim/files/du004/du005/thumb_3eff6e50-f3de-11ed-8882-ef83bd3db406"
-                // );
-                checked(msg);
-              }}
-            />
+            {isFastImage ? (
+              <FastImage
+                style={{ height: height, width: width, borderRadius: 10 }}
+                source={
+                  _url.length === 0
+                    ? 0
+                    : {
+                        uri: _url,
+                      }
+                }
+                resizeMode={FastImage.resizeMode.cover}
+                onLoad={(e) => {
+                  dlog.log('test:onLoad:', e.nativeEvent);
+                  const ret = hw(e.nativeEvent);
+                  setHeight(ret.height);
+                  setWidth(ret.width);
+                }}
+                onError={() => {
+                  dlog.log('test:onError:');
+                  setUrl('');
+                  checked(msg);
+                }}
+              />
+            ) : (
+              <RNImage
+                source={
+                  _url.length === 0
+                    ? 0
+                    : {
+                        uri: _url,
+                      }
+                }
+                resizeMode="contain"
+                resizeMethod="scale"
+                style={{ height: height, width: width, borderRadius: 10 }}
+                onLoad={(e) => {
+                  dlog.log('test:onLoad:', e.nativeEvent);
+                  const ret = hw(e.nativeEvent.source);
+                  setHeight(ret.height);
+                  setWidth(ret.width);
+                }}
+                onError={() => {
+                  dlog.log('test:onError:');
+                  setUrl('');
+                  // setUrl(
+                  //   "https://dogefs.s3.ladydaily.com/~/source/unsplash/photo-1622697872837-f353c9be5ab8?ixlib=rb-4.0.3&q=85&fmt=jpg&crop=entropy&cs=srgb&dl=chen-jian-fm6_ysxat6Y-unsplash.jpg&w=640"
+                  // );
+                  // setUrl(
+                  //   "file:///storage/emulated/0/Android/data/com.example.rn.message.demo/easemob%23easeim/files/du004/du005/thumb_3eff6e50-f3de-11ed-8882-ef83bd3db406"
+                  // );
+                  checked(msg);
+                }}
+              />
+            )}
           </View>
           <View
             style={[
